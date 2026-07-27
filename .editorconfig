@@ -1,0 +1,44 @@
+# EditorConfig ensures consistent whitespace/encoding across every editor,
+# independent of each developer's personal IDE settings.
+# https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# TypeScript/JavaScript (frontend/, backend/, mobile/, packages/)
+[*.{ts,tsx,js,jsx,mjs,cjs}]
+indent_size = 2
+
+# Python (ai-engine/, climate-processing/, gis-services/) — PEP 8
+[*.py]
+indent_size = 4
+
+# YAML (kubernetes/, docker-compose, GitHub Actions) — indentation is semantically significant
+[*.{yml,yaml}]
+indent_size = 2
+
+# Terraform — canonical fmt uses 2 spaces
+[*.{tf,tfvars}]
+indent_size = 2
+
+# Makefiles require literal tabs
+[Makefile]
+indent_style = tab
+
+# Markdown — preserve trailing double-space (line break) and don't trim
+[*.md]
+trim_trailing_whitespace = false
+
+# SQL migrations
+[*.sql]
+indent_size = 2
+
+# Windows batch/PowerShell scripts keep CRLF for native compatibility
+[*.{bat,ps1}]
+end_of_line = crlf

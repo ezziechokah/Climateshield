@@ -1,0 +1,40 @@
+# Ruff configuration shared by every Python service (ai-engine/,
+# climate-processing/, gis-services/). See docs/17_Coding_Standards.md#python-standards.
+# Ruff replaces flake8 + isort + pyupgrade in a single fast tool.
+
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+  ".venv",
+  "venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "sdk/python",
+  "mock-data",
+]
+
+[lint]
+# E/W: pycodestyle, F: pyflakes, I: isort, UP: pyupgrade, B: bugbear,
+# C90: complexity, N: pep8-naming, S: bandit (security), ANN: annotations
+select = ["E", "W", "F", "I", "UP", "B", "C90", "N", "S", "ANN"]
+ignore = [
+  "ANN101", # missing type annotation for `self` — redundant, inferred
+  "ANN102", # missing type annotation for `cls` — redundant, inferred
+  "S101",   # assert allowed in test files (re-enabled per-path below)
+]
+
+[lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "ANN"]      # asserts and relaxed annotations OK in tests
+"**/conftest.py" = ["ANN"]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.isort]
+known-first-party = ["ai_engine", "climate_processing", "gis_services"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

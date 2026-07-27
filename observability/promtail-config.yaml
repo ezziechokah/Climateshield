@@ -1,0 +1,36 @@
+# Promtail — ships container stdout logs to Loki (loki-config.yaml).
+# In Kubernetes, promtail runs as a DaemonSet reading
+# /var/log/pods/*/*/*.log; in local docker-compose, it tails the Docker
+# container log files directly via the docker_sd_configs discovery below.
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: [__meta_docker_container_name]
+        regex: "/(.*)"
+        target_label: container
+      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+        target_label: service
+    pipeline_stages:
+      # Every service emits single-line JSON (logging-strategy.md#structured-log-schema)
+      # — parse it so `level`, `service`, `request_id`, `trace_id` become
+      # queryable Loki labels/fields rather than opaque text.
+      - json:
+          expressions:
+            level: level
+            request_id: request_id
+            trace_id: trace_id
+      - labels:
+          level:
+          request_id:

@@ -1,0 +1,30 @@
+name: Deploy to Production
+
+# Canary + full-rollout production deploy per docs/15_Deployment_Guide.md#release-process.
+# Requires manual approval gate (GitHub Environments protection rule).
+# NOTE: Foundation-phase skeleton.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  canary:
+    name: Canary Deploy (5% traffic)
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder — apply kubernetes/overlays/production (canary)
+        run: echo "Deploys canary per docs/15_Deployment_Guide.md#release-process"
+      - name: Placeholder — monitor SLOs
+        run: echo "Watches error-rate/latency SLOs for 30 minutes per docs/29_Logging_and_Monitoring.md"
+
+  full-rollout:
+    name: Full Rollout
+    runs-on: ubuntu-latest
+    needs: canary
+    environment: production
+    steps:
+      - name: Placeholder — promote canary to 100%
+        run: echo "Promotes canary to full traffic once SLOs are healthy"

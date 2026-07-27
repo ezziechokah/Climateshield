@@ -1,0 +1,80 @@
+name: Lint & Format Check
+
+# Dedicated, always-runnable lint/format gate — distinct from the
+# service-build-dependent jobs in ci.yml. Runs against the repo's tooling
+# configs (eslint.config.js, ruff.toml, .prettierrc.json) which are real
+# from day one, even before application source code exists, so this
+# workflow is meaningful starting with the very first commit.
+# Required check per docs/19_Quality_Gates equivalent — see docs/17_Coding_Standards.md.
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  lint-node:
+    name: ESLint + Prettier (TypeScript/JavaScript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: ESLint
+        run: npm run lint
+      - name: Prettier check
+        run: npm run format:check
+
+  lint-python:
+    name: Ruff (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Ruff
+        run: pip install ruff==0.6.3
+      - name: Ruff check
+        run: ruff check .
+      - name: Ruff format check
+        run: ruff format --check .
+
+  lint-yaml-and-editorconfig:
+    name: YAML lint + EditorConfig conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: yamllint (Kubernetes manifests, workflows, Compose files)
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: "kubernetes docker-compose*.yml .github/workflows config"
+          config_data: |
+            extends: default
+            rules:
+              line-length: { max: 160 }
+              document-start: disable
+      - name: EditorConfig check
+        uses: editorconfig-checker/action-editorconfig-checker@v2
+
+  lint-terraform:
+    name: Terraform fmt + validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.5"
+      - name: terraform fmt -check
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+      - name: terraform validate (per module)
+        working-directory: terraform
+        run: |
+          terraform init -backend=false
+          terraform validate

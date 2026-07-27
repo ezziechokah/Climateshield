@@ -1,0 +1,64 @@
+# Alertmanager routing — implements the escalation policy in
+# docs/29_Logging_and_Monitoring.md#on-call--escalation:
+# primary on-call -> 15min no-ack -> secondary -> 15min no-ack -> Lead Architect.
+global:
+  resolve_timeout: 5m
+  # Real webhook/API keys are injected via environment substitution at
+  # deploy time (envsubst over this template) — never committed here.
+  slack_api_url: "${SLACK_WEBHOOK_URL}"
+
+route:
+  receiver: default
+  group_by: ["service", "alertname"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: ['severity="critical"']
+      receiver: page-primary-oncall
+      continue: true
+      routes:
+        - matchers: ['severity="critical"']
+          receiver: page-secondary-oncall
+          group_wait: 15m # escalate if primary hasn't acked within 15 min
+
+    - matchers: ['severity="high"']
+      receiver: slack-data-engineering
+
+    - matchers: ['severity=~"medium|warning"']
+      receiver: slack-devops
+
+receivers:
+  - name: default
+    slack_configs:
+      - channel: "#csn-alerts"
+        send_resolved: true
+
+  - name: page-primary-oncall
+    pagerduty_configs:
+      - service_key: "${PAGERDUTY_PRIMARY_SERVICE_KEY}"
+        severity: critical
+    slack_configs:
+      - channel: "#csn-incidents"
+        send_resolved: true
+
+  - name: page-secondary-oncall
+    pagerduty_configs:
+      - service_key: "${PAGERDUTY_SECONDARY_SERVICE_KEY}"
+        severity: critical
+
+  - name: slack-data-engineering
+    slack_configs:
+      - channel: "#csn-data-engineering"
+        send_resolved: true
+
+  - name: slack-devops
+    slack_configs:
+      - channel: "#csn-devops"
+        send_resolved: true
+
+inhibit_rules:
+  # Don't page for individual service errors if the whole cluster is already down.
+  - source_matchers: ['alertname="ClusterDown"']
+    target_matchers: ['severity=~"critical|high"']
+    equal: ["cluster"]

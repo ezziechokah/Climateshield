@@ -1,0 +1,43 @@
+# Root-level shared Python tooling configuration (mypy, pytest, coverage).
+# Dependency management is per-service (ai-engine/pyproject.toml,
+# climate-processing/pyproject.toml, gis-services/pyproject.toml) since each
+# has a distinct dependency set (docs/06_System_Architecture.md#technology-stack);
+# this file centralizes settings that must stay IDENTICAL across all three so
+# CI type-checking/testing behaves the same everywhere.
+# Linting itself is configured in ruff.toml (kept separate per project convention).
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+exclude = ["build", "dist", ".venv", "sdk/python", "mock-data"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov-report=term-missing"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+markers = [
+  "unit: fast, no external dependencies",
+  "integration: requires Testcontainers (Postgres/Kafka)",
+  "slow: long-running (e.g., model back-testing)",
+]
+
+[tool.coverage.run]
+branch = true
+omit = ["*/tests/*", "*/migrations/*", "sdk/python/*"]
+
+[tool.coverage.report]
+# Matches docs/14_Testing_Strategy.md#coverage-targets — CI enforces the
+# per-service target explicitly; this is the floor for everything else.
+fail_under = 70
+show_missing = true
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedError"]

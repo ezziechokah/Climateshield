@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/alert.schema.json",
+  "title": "Alert",
+  "description": "Mirrors docs/09_Database_Dictionary.md#alert, CAP v1.2-aligned per docs/12_API_Specification.md#sample-payloads. Validation contract only.",
+  "type": "object",
+  "required": ["id", "cap_identifier", "hazard_type", "severity", "status", "admin_boundary_id", "expires_at"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "cap_identifier": { "type": "string" },
+    "hazard_type": {
+      "type": "string",
+      "enum": ["flood", "drought", "heatwave", "agriculture", "infrastructure", "population_exposure"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "moderate", "high", "severe", "extreme"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending_approval", "approved", "rejected", "issued", "expired", "cancelled"]
+    },
+    "admin_boundary_id": { "type": "string", "format": "uuid" },
+    "approved_by": { "type": ["string", "null"], "format": "uuid" },
+    "headline": { "type": "string", "maxLength": 200 },
+    "description": { "type": "string" },
+    "issued_at": { "type": ["string", "null"], "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

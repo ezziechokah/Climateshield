@@ -1,0 +1,32 @@
+# Normalizes line endings and marks binary/generated files so `git diff`
+# and merges behave consistently across the team's mixed Windows/macOS/Linux
+# machines (see docs/34_Developer_Guide.md).
+
+* text=auto eol=lf
+
+# Windows-native scripts keep CRLF
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Never diff or merge generated/vendored content
+sdk/typescript/** -diff linguist-generated=true
+sdk/python/** -diff linguist-generated=true
+package-lock.json -diff linguist-generated=true
+poetry.lock -diff linguist-generated=true
+
+# Treat these as binary (no line-ending conversion, no text diff)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.tif binary
+*.tiff binary
+
+# Exclude non-essential paths from GitHub's language/statistics detection
+docs/** linguist-documentation
+mock-data/** linguist-generated=true

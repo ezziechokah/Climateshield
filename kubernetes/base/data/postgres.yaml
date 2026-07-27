@@ -1,0 +1,79 @@
+# PostgreSQL/PostGIS primary — StatefulSet (stable network identity + PVC
+# per pod) rather than Deployment, since this is the platform's system of
+# record (docs/09_Database_Dictionary.md). Production replaces this with a
+# managed database or an operator-managed HA cluster (e.g. CloudNativePG) —
+# see docs/architecture/ADR-002-postgis-timescaledb-data-platform.md and the
+# `production` overlay, which patches or replaces this manifest entirely.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: csn-data
+  labels: { app.kubernetes.io/name: postgres }
+spec:
+  serviceName: postgres
+  replicas: 1 # production overlay: managed DB or operator-managed HA, not this manifest
+  selector:
+    matchLabels: { app.kubernetes.io/name: postgres }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: postgres }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgis/postgis:15-3.4
+          ports: [{ name: postgres, containerPort: 5432 }]
+          envFrom:
+            - secretRef: { name: postgres-secrets }
+          env:
+            - { name: POSTGRES_DB, value: climateshield_nexus }
+            - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
+          resources:
+            requests: { cpu: 500m, memory: 1Gi }
+            limits: { cpu: "2", memory: 4Gi }
+          volumeMounts:
+            - { name: postgres-data, mountPath: /var/lib/postgresql/data }
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", "climateshield_app"] }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec: { command: ["pg_isready", "-U", "climateshield_app"] }
+            initialDelaySeconds: 30
+            periodSeconds: 20
+  volumeClaimTemplates:
+    - metadata: { name: postgres-data }
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: csn-fast-ssd
+        resources: { requests: { storage: 50Gi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: csn-data
+  labels: { app.kubernetes.io/name: postgres }
+spec:
+  clusterIP: None # headless — StatefulSet stable DNS per pod
+  selector: { app.kubernetes.io/name: postgres }
+  ports: [{ name: postgres, port: 5432, targetPort: postgres }]
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: postgres-secrets
+  namespace: csn-data
+spec:
+  refreshInterval: 1h
+  secretStoreRef: { name: vault-backend, kind: SecretStore }
+  target: { name: postgres-secrets }
+  data:
+    - secretKey: POSTGRES_USER
+      remoteRef: { key: climateshield-nexus/database, property: app_user }
+    - secretKey: POSTGRES_PASSWORD
+      remoteRef: { key: climateshield-nexus/database, property: app_password }

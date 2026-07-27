@@ -1,0 +1,46 @@
+# Codecov configuration — enforces the per-component coverage floors from
+# docs/14_Testing_Strategy.md#coverage-targets as PR status checks, so a PR
+# that drops coverage below a service's target is flagged before merge.
+coverage:
+  precision: 1
+  round: down
+  range: "70...90"
+  status:
+    project:
+      default: false
+      auth-service:
+        target: 90%
+        paths: ["backend/auth-service/"]
+      alerting-service:
+        target: 90%
+        paths: ["backend/alerting-service/"]
+      risk-assessment-service:
+        target: 90%
+        paths: ["backend/risk-assessment-service/"]
+      climate-data-service:
+        target: 80%
+        paths: ["backend/climate-data-service/", "climate-processing/"]
+      gis-services:
+        target: 75%
+        paths: ["gis-services/"]
+      ai-engine:
+        target: 70%
+        paths: ["ai-engine/"]
+      frontend:
+        target: 70%
+        paths: ["frontend/"]
+      overall:
+        target: 80%
+    patch:
+      default:
+        target: 80% # new/changed lines in a PR must be well-tested even if the overall service average is lower
+
+comment:
+  layout: "header, diff, flags, files"
+  require_changes: true
+
+ignore:
+  - "sdk/**"
+  - "mock-data/**"
+  - "**/*.d.ts"
+  - "database/schema/**"

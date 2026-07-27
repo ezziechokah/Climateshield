@@ -1,0 +1,48 @@
+{
+  "ai_conversations": [
+    {
+      "id": "94000000-0000-4000-8000-000000000001",
+      "user_id": "10000000-0000-4000-8000-000000000008",
+      "title": "Drought risk in Turkana",
+      "started_at": "2026-07-27T05:00:00Z",
+      "last_message_at": "2026-07-27T05:01:30Z",
+      "messages": [
+        { "role": "user", "content": "What is the current drought risk in Turkana County?", "confidence_score": null, "human_review_required": false, "created_at": "2026-07-27T05:00:00Z" },
+        { "role": "assistant", "content": "Turkana County is currently classified at 'severe' drought risk (SPI-3: -1.8) based on rainfall deficits over the past 90 days, per risk assessment 71000000-0000-4000-8000-000000000003.", "confidence_score": 0.91, "human_review_required": false, "created_at": "2026-07-27T05:00:12Z" }
+      ]
+    },
+    {
+      "id": "94000000-0000-4000-8000-000000000002",
+      "user_id": "10000000-0000-4000-8000-000000000008",
+      "title": "Planting advisory for Machakos",
+      "started_at": "2026-07-27T05:25:00Z",
+      "last_message_at": "2026-07-27T05:30:00Z",
+      "messages": [
+        { "role": "user", "content": "Should farmers in Machakos delay planting this week?", "confidence_score": null, "human_review_required": false, "created_at": "2026-07-27T05:25:00Z" },
+        { "role": "assistant", "content": "Based on moderate agriculture risk (confidence 0.68) driven by below-average rainfall, a short delay may be prudent, but confidence is below the auto-publish threshold — please review before advising farmers.", "confidence_score": 0.68, "human_review_required": true, "created_at": "2026-07-27T05:30:00Z" }
+      ]
+    },
+    {
+      "id": "94000000-0000-4000-8000-000000000003",
+      "user_id": "10000000-0000-4000-8000-000000000006",
+      "title": "Evacuation guidance query",
+      "started_at": "2026-07-27T07:20:00Z",
+      "last_message_at": "2026-07-27T07:20:45Z",
+      "messages": [
+        { "role": "user", "content": "Should we evacuate low-lying areas of Kilifi County now?", "confidence_score": null, "human_review_required": false, "created_at": "2026-07-27T07:20:00Z" },
+        { "role": "assistant", "content": "This question concerns evacuation guidance, a high-stakes topic. I can share the underlying flood risk data, but a recommendation on evacuation requires review by a Disaster Management Officer before being acted upon.", "confidence_score": 0.55, "human_review_required": true, "created_at": "2026-07-27T07:20:45Z" }
+      ]
+    },
+    {
+      "id": "94000000-0000-4000-8000-000000000004",
+      "user_id": "10000000-0000-4000-8000-000000000004",
+      "title": "Historical rainfall comparison request",
+      "started_at": "2026-07-26T14:00:00Z",
+      "last_message_at": "2026-07-26T14:00:20Z",
+      "messages": [
+        { "role": "user", "content": "How does this month's rainfall in Kisumu compare to the 10-year average?", "confidence_score": null, "human_review_required": false, "created_at": "2026-07-26T14:00:00Z" },
+        { "role": "assistant", "content": "I don't have enough verified data to answer that precisely — the 10-year average dataset for Kisumu is not yet loaded. You can view available historical data in Historical Analysis.", "confidence_score": 0.2, "human_review_required": false, "created_at": "2026-07-26T14:00:20Z" }
+      ]
+    }
+  ]
+}

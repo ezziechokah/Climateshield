@@ -1,0 +1,16 @@
+{
+  "id": "alert_9922",
+  "cap_identifier": "urn:oid:2.49.0.1.404.2026072710",
+  "hazard_type": "flood",
+  "severity": "severe",
+  "status": "issued",
+  "admin_boundary": {
+    "id": "a1c9f2e7-1234-4abc-9def-0123456789ab",
+    "name": "Kilifi County",
+    "level": "county"
+  },
+  "headline": "Severe Flood Risk — Kilifi County",
+  "description": "Heavy rainfall over the past 48 hours has saturated soils across low-lying areas of Kilifi County. Residents in flood-prone zones should move valuables to higher ground and avoid low-water crossings.",
+  "issued_at": "2026-07-27T07:12:00Z",
+  "expires_at": "2026-07-28T07:12:00Z"
+}

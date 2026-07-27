@@ -1,0 +1,22 @@
+# Adds the "devcontainer" service that VS Code / Codespaces attaches to,
+# layered on top of docker-compose.yml + docker-compose.dev.yml (see
+# devcontainer.json's dockerComposeFile list). This service does not run any
+# ClimateShield service itself — it is the interactive shell environment a
+# developer works inside, with the whole repo mounted and every app service
+# reachable via the shared Compose network.
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    environment:
+      - API_BASE_URL=http://gateway:4000
+    depends_on:
+      - postgres
+      - timescaledb
+      - redis
+      - kafka
+      - minio

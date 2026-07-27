@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/risk-assessment.schema.json",
+  "title": "RiskAssessment",
+  "description": "Mirrors docs/09_Database_Dictionary.md#risk_assessment. Validation contract only.",
+  "type": "object",
+  "required": ["id", "risk_model_id", "admin_boundary_id", "risk_type", "severity", "confidence_score", "assessed_at", "valid_until"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "risk_model_id": { "type": "string", "format": "uuid" },
+    "admin_boundary_id": { "type": "string", "format": "uuid" },
+    "risk_type": {
+      "type": "string",
+      "enum": ["flood", "drought", "heatwave", "agriculture", "infrastructure", "population_exposure"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "moderate", "high", "severe", "extreme"]
+    },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "assessed_at": { "type": "string", "format": "date-time" },
+    "valid_until": { "type": "string", "format": "date-time" },
+    "contributing_sources": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["source_type", "source_ref_id"],
+        "properties": {
+          "source_type": { "type": "string", "enum": ["observation", "forecast_value", "climate_index"] },
+          "source_ref_id": { "type": "string", "format": "uuid" }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

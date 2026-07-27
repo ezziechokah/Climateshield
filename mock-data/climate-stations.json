@@ -1,0 +1,14 @@
+{
+  "stations": [
+    { "id": "30000000-0000-4000-8000-000000000001", "wmo_id": "63740", "name": "Mombasa Meteorological Station", "location": { "type": "Point", "coordinates": [39.6011, -4.0348] }, "station_type": "synoptic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000002", "wmo_id": "63612", "name": "Jomo Kenyatta International Airport", "location": { "type": "Point", "coordinates": [36.9278, -1.3192] }, "station_type": "synoptic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000003", "wmo_id": "63705", "name": "Kisumu Meteorological Station", "location": { "type": "Point", "coordinates": [34.7288, -0.0961] }, "station_type": "synoptic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000004", "wmo_id": "63631", "name": "Nakuru Meteorological Station", "location": { "type": "Point", "coordinates": [36.0667, -0.2833] }, "station_type": "synoptic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000005", "wmo_id": "63736", "name": "Malindi Meteorological Station", "location": { "type": "Point", "coordinates": [40.1017, -3.2333] }, "station_type": "synoptic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000006", "wmo_id": "63661", "name": "Garissa Meteorological Station", "location": { "type": "Point", "coordinates": [39.6333, -0.4536] }, "station_type": "automatic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000007", "wmo_id": "63626", "name": "Eldoret Meteorological Station", "location": { "type": "Point", "coordinates": [35.2389, 0.4044] }, "station_type": "synoptic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000008", "wmo_id": "63791", "name": "Lodwar Meteorological Station", "location": { "type": "Point", "coordinates": [35.6, 3.1167] }, "station_type": "automatic", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000009", "wmo_id": "63668", "name": "Machakos Rainfall Station", "location": { "type": "Point", "coordinates": [37.2667, -1.5167] }, "station_type": "rainfall-only", "status": "active" },
+    { "id": "30000000-0000-4000-8000-000000000010", "wmo_id": "63652", "name": "Meru Meteorological Station", "location": { "type": "Point", "coordinates": [37.6559, 0.0463] }, "station_type": "synoptic", "status": "active" }
+  ]
+}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  namespace: csn-gateway
+data:
+  NODE_ENV: "production"
+  APP_ENV: "production"
+  LOG_LEVEL: "warn"
+  PORT: "4000"
+  GATEWAY_RATE_LIMIT_PER_MIN: "120"
+  REDIS_HOST: "redis.csn-data.svc.cluster.local"
+  REDIS_PORT: "6379"
+  OPENTELEMETRY_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.csn-observability.svc.cluster.local:4317"

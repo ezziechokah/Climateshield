@@ -1,0 +1,18 @@
+# Internal ClusterIP service — the Ingress (kubernetes/base/ingress.yaml)
+# and, locally, docker-compose route to this. Gateway is intentionally the
+# only namespace with a Service consumed by an Ingress (docs/architecture/system-architecture-views.md#network-architecture).
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: csn-gateway
+  labels:
+    app.kubernetes.io/name: gateway
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

@@ -1,0 +1,26 @@
+{
+  "//": "Mirrors docs/09_Database_Dictionary.md#enumerated-types and docs/diagrams/06_Complete_ERD.md lookup tables. Update the docs first, then this file.",
+  "userStatus": ["active", "suspended", "deactivated"],
+  "hazardType": ["flood", "drought", "heatwave", "agriculture", "infrastructure", "population_exposure"],
+  "severity": ["low", "moderate", "high", "severe", "extreme"],
+  "alertStatus": ["pending_approval", "approved", "rejected", "issued", "expired", "cancelled"],
+  "roles": [
+    "super_admin",
+    "kmd_admin",
+    "meteorologist",
+    "climate_scientist",
+    "gis_analyst",
+    "disaster_mgmt_officer",
+    "government_planner",
+    "agriculture_officer",
+    "aviation_officer",
+    "water_resources_officer",
+    "health_sector_officer",
+    "ngo",
+    "researcher",
+    "public_user"
+  ],
+  "permissionActions": ["view", "create", "edit", "delete", "approve", "export"],
+  "alertChannels": ["sms", "email", "push", "webhook"],
+  "reportFormats": ["pdf", "xlsx"]
+}

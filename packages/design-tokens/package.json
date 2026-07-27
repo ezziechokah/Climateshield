@@ -1,0 +1,9 @@
+{
+  "name": "@climateshield-nexus/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Design tokens (color, spacing, typography, elevation) as consumable data — source of truth is docs/design/02_High_Fidelity_Design_Specification.md",
+  "main": "tokens.json",
+  "types": "tokens.d.ts",
+  "license": "Apache-2.0"
+}

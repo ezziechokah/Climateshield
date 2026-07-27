@@ -1,0 +1,15 @@
+{
+  "//": "10 representative sub-counties (not exhaustive — full sub-county coverage is a data-loading task for Phase 1 discovery, docs/42_Final_Project_Checklist.md). parent_id references mock-data/counties.json.",
+  "subcounties": [
+    { "id": "21000000-0000-4000-8000-000000000001", "code": "003-01", "name": "Kilifi North", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000003" },
+    { "id": "21000000-0000-4000-8000-000000000002", "code": "003-02", "name": "Kilifi South", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000003" },
+    { "id": "21000000-0000-4000-8000-000000000003", "code": "023-01", "name": "Turkana Central", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000023" },
+    { "id": "21000000-0000-4000-8000-000000000004", "code": "023-02", "name": "Turkana North", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000023" },
+    { "id": "21000000-0000-4000-8000-000000000005", "code": "016-01", "name": "Machakos Town", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000016" },
+    { "id": "21000000-0000-4000-8000-000000000006", "code": "032-01", "name": "Nakuru Town East", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000032" },
+    { "id": "21000000-0000-4000-8000-000000000007", "code": "047-01", "name": "Westlands", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000047" },
+    { "id": "21000000-0000-4000-8000-000000000008", "code": "047-02", "name": "Embakasi East", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000047" },
+    { "id": "21000000-0000-4000-8000-000000000009", "code": "042-01", "name": "Kisumu Central", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000042" },
+    { "id": "21000000-0000-4000-8000-000000000010", "code": "007-01", "name": "Garissa Township", "level": "sub_county", "parent_id": "20000000-0000-4000-8000-000000000007" }
+  ]
+}

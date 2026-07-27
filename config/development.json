@@ -1,0 +1,18 @@
+{
+  "//": "Development environment overrides. Deep-merged on top of default.json.",
+  "gateway": {
+    "rateLimitPerMinute": {
+      "authenticatedUser": 6000,
+      "apiKeyPublicTier": 6000,
+      "apiKeyPartnerTier": 6000,
+      "unauthenticatedPerIp": 6000
+    }
+  },
+  "auth": {
+    "accessTokenTtlSeconds": 3600
+  },
+  "logging": {
+    "level": "debug",
+    "prettyPrint": true
+  }
+}

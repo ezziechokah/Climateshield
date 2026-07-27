@@ -1,0 +1,156 @@
+# ClimateShield Nexus — full local application stack.
+#
+# Composes the application services (this file) on top of the local
+# infrastructure stack already defined in docker/docker-compose.yml
+# (Postgres/PostGIS, TimescaleDB, Redis, Kafka, MinIO, GeoServer — see that
+# file's own header comment). Using Compose's `include` keeps infra
+# ownership in one place instead of duplicating it here.
+#
+# Usage:
+#   docker compose up -d                                   # base stack
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up   # + hot reload
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up  # prod-like smoke test
+#
+# NOTE: application images will not build successfully until each service's
+# source code exists (see docs/40_Developer_Assignment.md for ownership) —
+# the Dockerfiles and this compose file are the infrastructure scaffold,
+# not a claim that business logic is implemented yet.
+
+include:
+  - docker/docker-compose.yml
+
+services:
+  # ---------------------------------------------------------------- Edge --
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: csn-frontend
+    ports:
+      - "3000:8080"
+    env_file: [.env]
+    depends_on: [gateway]
+
+  # ------------------------------------------------------------- Gateway --
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/templates/node-service.Dockerfile
+      args:
+        SERVICE_DIR: backend/gateway
+    container_name: csn-gateway
+    ports:
+      - "4000:4000"
+    env_file: [.env]
+    environment:
+      PORT: "4000"
+    depends_on: [postgres, redis, auth-service]
+
+  # ------------------------------------------------- Node backend services --
+  auth-service:
+    build:
+      context: .
+      dockerfile: docker/templates/node-service.Dockerfile
+      args:
+        SERVICE_DIR: backend/auth-service
+    container_name: csn-auth-service
+    env_file: [.env]
+    environment: { PORT: "4001" }
+    depends_on: [postgres, redis]
+
+  climate-data-service:
+    build:
+      context: .
+      dockerfile: docker/templates/node-service.Dockerfile
+      args:
+        SERVICE_DIR: backend/climate-data-service
+    container_name: csn-climate-data-service
+    env_file: [.env]
+    environment: { PORT: "4002" }
+    depends_on: [postgres, timescaledb, kafka]
+
+  alerting-service:
+    build:
+      context: .
+      dockerfile: docker/templates/node-service.Dockerfile
+      args:
+        SERVICE_DIR: backend/alerting-service
+    container_name: csn-alerting-service
+    env_file: [.env]
+    environment: { PORT: "4003" }
+    depends_on: [postgres, kafka]
+
+  reporting-service:
+    build:
+      context: .
+      dockerfile: docker/templates/node-service.Dockerfile
+      args:
+        SERVICE_DIR: backend/reporting-service
+    container_name: csn-reporting-service
+    env_file: [.env]
+    environment: { PORT: "4004" }
+    depends_on: [postgres, minio]
+
+  admin-audit-service:
+    build:
+      context: .
+      dockerfile: docker/templates/node-service.Dockerfile
+      args:
+        SERVICE_DIR: backend/admin-audit-service
+    container_name: csn-admin-audit-service
+    env_file: [.env]
+    environment: { PORT: "4005" }
+    depends_on: [postgres]
+
+  # ---------------------------------------------- Python backend services --
+  risk-assessment-service:
+    build:
+      context: .
+      dockerfile: docker/templates/python-service.Dockerfile
+      args:
+        SERVICE_DIR: backend/risk-assessment-service
+    container_name: csn-risk-assessment-service
+    env_file: [.env]
+    environment: { PORT: "8001" }
+    depends_on: [postgres, timescaledb, kafka]
+
+  ai-engine:
+    build:
+      context: .
+      dockerfile: docker/templates/python-service.Dockerfile
+      args:
+        SERVICE_DIR: ai-engine
+    container_name: csn-ai-engine
+    env_file: [.env]
+    environment: { PORT: "8002" }
+    depends_on: [postgres]
+
+  gis-services:
+    build:
+      context: .
+      dockerfile: docker/templates/python-service.Dockerfile
+      args:
+        SERVICE_DIR: gis-services
+    container_name: csn-gis-services
+    env_file: [.env]
+    environment: { PORT: "8003" }
+    depends_on: [postgres, geoserver]
+
+  # -------------------------------------------------- Climate Processing --
+  climate-processing-scheduler:
+    build:
+      context: .
+      dockerfile: docker/climate-processing/Dockerfile
+    container_name: csn-climate-processing-scheduler
+    command: ["scheduler"]
+    env_file: [.env]
+    depends_on: [postgres, kafka]
+
+  climate-processing-worker:
+    build:
+      context: .
+      dockerfile: docker/climate-processing/Dockerfile
+    container_name: csn-climate-processing-worker
+    command: ["celery", "worker"]
+    env_file: [.env]
+    depends_on: [postgres, kafka, climate-processing-scheduler]

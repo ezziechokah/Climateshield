@@ -1,0 +1,50 @@
+{
+  "//": "Seed values for risk_model.parameters (docs/09_Database_Dictionary.md#risk-assessment-tables). Configuration only — no scoring logic. Thresholds are illustrative defaults for KMD's initial deployment and must be calibrated during Phase 2 of docs/20_Project_Roadmap.md.",
+  "flood": {
+    "version": "1.0.0",
+    "rainfallAccumulationMm": {
+      "moderate": 50,
+      "high": 100,
+      "severe": 150,
+      "extreme": 200
+    },
+    "accumulationWindowHours": 72
+  },
+  "drought": {
+    "version": "1.0.0",
+    "spi3": {
+      "moderate": -1.0,
+      "high": -1.5,
+      "severe": -2.0,
+      "extreme": -2.5
+    }
+  },
+  "heatwave": {
+    "version": "1.0.0",
+    "heatIndexCelsius": {
+      "moderate": 32,
+      "high": 38,
+      "severe": 41,
+      "extreme": 45
+    },
+    "minimumConsecutiveDays": 3
+  },
+  "agriculture": {
+    "version": "1.0.0",
+    "droughtWeight": 0.6,
+    "rainfallDeficitWeight": 0.4
+  },
+  "infrastructure": {
+    "version": "1.0.0",
+    "exposureWeight": {
+      "flood": 0.5,
+      "heatwave": 0.3,
+      "drought": 0.2
+    }
+  },
+  "populationExposure": {
+    "version": "1.0.0",
+    "vulnerabilityWeight": 0.5,
+    "hazardSeverityWeight": 0.5
+  }
+}

@@ -1,0 +1,89 @@
+# Prometheus scrape configuration implementing docs/29_Logging_and_Monitoring.md#metrics--slos.
+# In Kubernetes this is loaded via a ConfigMap mounted into the Prometheus
+# pod (kube-prometheus-stack Helm values would reference this file's content
+# directly); locally it's mounted into the docker-compose Prometheus
+# container for the same scrape behavior.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: climateshield-nexus
+    environment: "${ENVIRONMENT:-development}"
+
+rule_files:
+  - "alerts/platform-alerts.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  # Every service exposes GET /health (liveness) and Prometheus-format
+  # metrics at /metrics per the platform-wide convention in
+  # docs/design/03_Module_Specifications.md.
+  - job_name: "gateway"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["gateway:4000"]
+        labels: { service: gateway, tier: edge }
+
+  - job_name: "climate-data-service"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["climate-data-service:4002"]
+        labels: { service: climate-data-service, tier: application }
+
+  - job_name: "risk-assessment-service"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["risk-assessment-service:8001"]
+        labels: { service: risk-assessment-service, tier: application }
+
+  - job_name: "alerting-service"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["alerting-service:4003"]
+        labels: { service: alerting-service, tier: application, criticality: highest }
+
+  - job_name: "ai-engine"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ai-engine:8002"]
+        labels: { service: ai-engine, tier: application }
+
+  - job_name: "gis-services"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["gis-services:8003"]
+        labels: { service: gis-services, tier: application }
+
+  # Infrastructure exporters (added alongside each datastore in production —
+  # postgres_exporter, redis_exporter, kafka_exporter sidecars).
+  - job_name: "postgres-exporter"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels: { service: postgres, tier: data }
+
+  - job_name: "redis-exporter"
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+        labels: { service: redis, tier: data }
+
+  - job_name: "kafka-exporter"
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+        labels: { service: kafka, tier: data }
+
+  # Kubernetes-native scrape targets (production only — no-op locally)
+  - job_name: "kubernetes-pods"
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: "true"
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+        target_label: service

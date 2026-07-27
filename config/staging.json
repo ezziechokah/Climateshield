@@ -1,0 +1,15 @@
+{
+  "//": "Staging environment overrides. Deep-merged on top of default.json.",
+  "gateway": {
+    "rateLimitPerMinute": {
+      "authenticatedUser": 300,
+      "apiKeyPublicTier": 300,
+      "apiKeyPartnerTier": 1200,
+      "unauthenticatedPerIp": 120
+    }
+  },
+  "logging": {
+    "level": "info",
+    "prettyPrint": false
+  }
+}

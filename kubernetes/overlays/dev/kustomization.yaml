@@ -1,0 +1,58 @@
+# Dev overlay — single replica everywhere, relaxed resource requests, so a
+# small dev/test cluster (e.g. kind/minikube) can run the full stack.
+# Apply: kubectl apply -k kubernetes/overlays/dev
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - target: { kind: Deployment, name: gateway }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  - target: { kind: Deployment, name: climate-data-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  - target: { kind: Deployment, name: risk-assessment-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  - target: { kind: Deployment, name: alerting-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  - target: { kind: HorizontalPodAutoscaler, name: gateway }
+    patch: |
+      - op: replace
+        path: /spec/minReplicas
+        value: 1
+      - op: replace
+        path: /spec/maxReplicas
+        value: 2
+  - target: { kind: StorageClass, name: csn-standard }
+    patch: |
+      - op: replace
+        path: /provisioner
+        value: rancher.io/local-path
+  - target: { kind: StorageClass, name: csn-fast-ssd }
+    patch: |
+      - op: replace
+        path: /provisioner
+        value: rancher.io/local-path
+
+images:
+  - name: ghcr.io/climateshield-nexus/gateway
+    newTag: dev
+  - name: ghcr.io/climateshield-nexus/climate-data-service
+    newTag: dev
+  - name: ghcr.io/climateshield-nexus/risk-assessment-service
+    newTag: dev
+  - name: ghcr.io/climateshield-nexus/alerting-service
+    newTag: dev

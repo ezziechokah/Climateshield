@@ -1,0 +1,13 @@
+# Production-only PodDisruptionBudget — not needed in dev/staging where a
+# single replica makes "minAvailable" meaningless. alerting-service already
+# has one in base/ since it needs the guarantee at every replica count
+# (NFR-AVAIL-003); these two are production-scale-specific.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: climate-data-service
+  namespace: csn-services
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels: { app.kubernetes.io/name: climate-data-service }

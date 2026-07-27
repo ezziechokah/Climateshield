@@ -1,0 +1,30 @@
+{
+  "//": "Machine-readable seed data for the RBAC matrix in docs/13_Security_Design.md#rbac-matrix. Loaded by the User/Role Service on first deploy (per-agency) to populate permission/role_permission tables — see docs/09_Database_Dictionary.md#identity--access-tables. Legend: V=View C=Create E=Edit D=Delete A=Approve X=Export.",
+  "modules": [
+    "climate_data", "forecasts", "risk_assessment", "gis", "ai_assistant",
+    "alerts", "reports", "user_management", "role_management", "audit_log",
+    "system_config", "api_management"
+  ],
+  "actions": ["view", "create", "edit", "delete", "approve", "export"],
+  "roles": {
+    "super_admin":            { "climate_data": "VCEDX", "forecasts": "VCEDX", "risk_assessment": "VCEDX", "gis": "VCEDX", "ai_assistant": "VCEDX", "alerts": "VCEDAX", "reports": "VCEDX", "user_management": "VCEDX", "role_management": "VCEDX", "audit_log": "VX", "system_config": "VCEDX", "api_management": "VCEDX" },
+    "kmd_admin":               { "climate_data": "VCEX", "forecasts": "VCEX", "risk_assessment": "VCEX", "gis": "VCEX", "ai_assistant": "VX", "alerts": "VCEAX", "reports": "VCEX", "user_management": "VCE", "role_management": "VCE", "audit_log": "VX", "system_config": "VCE", "api_management": "VCEDX" },
+    "meteorologist":            { "climate_data": "VCE", "forecasts": "VCE", "risk_assessment": "VC", "gis": "V", "ai_assistant": "VX", "alerts": "VC", "reports": "VC" },
+    "climate_scientist":        { "climate_data": "VX", "forecasts": "VX", "risk_assessment": "VX", "gis": "V", "ai_assistant": "VX", "alerts": "V", "reports": "VCX" },
+    "gis_analyst":              { "climate_data": "V", "forecasts": "V", "risk_assessment": "V", "gis": "VCEDX", "ai_assistant": "VX", "alerts": "V", "reports": "VX" },
+    "disaster_mgmt_officer":    { "climate_data": "V", "forecasts": "V", "risk_assessment": "VX", "gis": "V", "ai_assistant": "VX", "alerts": "VCAX", "reports": "VCX" },
+    "government_planner":       { "climate_data": "V", "forecasts": "V", "risk_assessment": "VX", "gis": "V", "ai_assistant": "VX", "alerts": "V", "reports": "VCX" },
+    "agriculture_officer":      { "climate_data": "V", "forecasts": "V", "risk_assessment": "VX", "gis": "V", "ai_assistant": "VX", "alerts": "V", "reports": "VX" },
+    "aviation_officer":         { "climate_data": "V", "forecasts": "V", "risk_assessment": "V", "gis": "V", "ai_assistant": "VX", "alerts": "V", "reports": "VX" },
+    "water_resources_officer":  { "climate_data": "V", "forecasts": "V", "risk_assessment": "VX", "gis": "V", "ai_assistant": "VX", "alerts": "V", "reports": "VX" },
+    "health_sector_officer":    { "climate_data": "V", "forecasts": "V", "risk_assessment": "VX", "gis": "V", "ai_assistant": "VX", "alerts": "V", "reports": "VX" },
+    "ngo":                      { "climate_data": "V", "forecasts": "V", "risk_assessment": "V", "gis": "V", "alerts": "V", "reports": "VX" },
+    "researcher":               { "climate_data": "VX", "forecasts": "VX", "risk_assessment": "VX", "gis": "VX", "alerts": "V", "reports": "VX" },
+    "public_user":              { "climate_data": "V", "forecasts": "V", "risk_assessment": "V", "gis": "V", "alerts": "V" }
+  },
+  "notes": [
+    "Cell values compose to Permission rows (module, action) inserted per role at seed time — e.g. 'VCEDX' for climate_data expands to 5 permission grants.",
+    "Blank/absent modules for a role mean no grant of any action on that module.",
+    "county/region SCOPE restrictions (e.g., an Agriculture Officer scoped to their assigned county) are applied at the user level via admin_boundary assignment, not encoded in this role-level file — see docs/13_Security_Design.md#authorization-model."
+  ]
+}

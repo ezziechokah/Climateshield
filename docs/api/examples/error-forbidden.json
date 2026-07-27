@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "You do not have permission to approve alerts.",
+    "details": { "required_permission": "alerts:approve" },
+    "request_id": "req_7e6d5c4b"
+  }
+}

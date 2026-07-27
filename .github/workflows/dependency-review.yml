@@ -1,0 +1,23 @@
+name: Dependency Review
+
+# Blocks a PR from merging if it introduces a dependency with a known
+# high/critical vulnerability or an incompatible license — the "Dependency
+# Review" quality gate (Part 19). Complements dependabot.yml (which
+# proposes updates) and security-scan.yml (which scans the whole tree).
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          deny-licenses: GPL-3.0, AGPL-3.0 # incompatible with Apache-2.0 distribution, see LICENSE

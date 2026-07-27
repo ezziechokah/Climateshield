@@ -1,0 +1,15 @@
+{
+  "//": "Config for gaurav-nelson/github-action-markdown-link-check (.github/workflows/docs-validate.yml). Ignores external hosts that require auth or don't exist yet (e.g. the placeholder climateshield-nexus.example domain) so the check focuses on catching genuinely broken INTERNAL cross-references.",
+  "ignorePatterns": [
+    { "pattern": "^https://.*\\.example" },
+    { "pattern": "^https://api\\.climateshield-nexus" },
+    { "pattern": "^https://app\\.climateshield-nexus" },
+    { "pattern": "^https://vault\\." }
+  ],
+  "replacementPatterns": [],
+  "httpHeaders": [],
+  "timeout": "10s",
+  "retryOn429": true,
+  "retryCount": 2,
+  "fallbackHttpStatus": [200, 206, 403]
+}

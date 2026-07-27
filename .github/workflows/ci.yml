@@ -1,0 +1,48 @@
+name: CI
+
+# Runs on every pull request per docs/14_Testing_Strategy.md#ci-quality-gates
+# and docs/15_Deployment_Guide.md#cicd-pipeline.
+# NOTE: This is a foundation-phase skeleton — job steps reference services
+# that do not exist yet and will be filled in as backend/, frontend/, etc.
+# gain real code.
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder — lint once services exist
+        run: echo "Lint step will run ESLint/Prettier (TS) and Ruff/Black (Python) per docs/17_Coding_Standards.md"
+
+  unit-tests:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder — tests once services exist
+        run: echo "Runs Jest/Pytest with coverage targets per docs/14_Testing_Strategy.md#coverage-targets"
+
+  security-scan:
+    name: SAST + SCA Scan
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder — Semgrep/CodeQL + dependency scan
+        run: echo "Runs SAST/SCA per docs/13_Security_Design.md and docs/14_Testing_Strategy.md#ci-quality-gates"
+
+  docs-diagram-check:
+    name: Validate Mermaid Diagrams
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render Mermaid diagrams in changed docs
+        run: echo "Validates all mermaid code blocks in docs/ render without syntax errors per docs/diagrams/README.md"

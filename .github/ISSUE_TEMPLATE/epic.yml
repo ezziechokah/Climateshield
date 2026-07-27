@@ -1,0 +1,46 @@
+name: Epic
+description: A large body of work spanning multiple sprints/stories (docs/25_Product_Backlog.md)
+labels: ["epic"]
+body:
+  - type: input
+    id: goal
+    attributes:
+      label: Epic Goal
+    validations: { required: true }
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What outcome does this epic deliver, and why now?
+    validations: { required: true }
+  - type: input
+    id: backlog-ref
+    attributes:
+      label: Product Backlog Reference
+      description: Link the epic entry in docs/25_Product_Backlog.md
+  - type: textarea
+    id: stories
+    attributes:
+      label: Constituent User Stories
+      description: Link to docs/10_User_Stories.md IDs or child issues, one per line
+      placeholder: |
+        - [ ] US-RISK-01
+        - [ ] US-RISK-02
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Roadmap Phase
+      description: docs/20_Project_Roadmap.md
+      options:
+        - "Phase 1 - Core Platform MVP"
+        - "Phase 2 - Risk Intelligence & GIS"
+        - "Phase 3 - AI & Early Warning"
+        - "Phase 4 - KMD Pilot"
+        - "Phase 5 - Scale & Multi-Agency"
+    validations: { required: true }
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success Criteria
+      description: How will we know this epic is done?
+    validations: { required: true }

@@ -1,0 +1,23 @@
+{
+  "//": "STRUCTURAL PLACEHOLDER — not real climate data. Shape for a back-test fixture: inputs as they existed at prediction time, plus the known ground-truth outcome. Real historical events are sourced from KMD's archives during Phase 1 discovery (docs/42_Final_Project_Checklist.md).",
+  "event_name": "Illustrative April 2024 Flood Event — Kilifi County",
+  "hazard_type": "flood",
+  "admin_boundary_id": "20000000-0000-4000-8000-000000000003",
+  "prediction_window": {
+    "as_of": "2024-04-20T00:00:00Z",
+    "inputs": {
+      "rainfall_72h_accumulation_mm": 165,
+      "soil_saturation_index": 0.82
+    }
+  },
+  "ground_truth": {
+    "event_occurred": true,
+    "actual_severity": "severe",
+    "actual_peak_date": "2024-04-22"
+  },
+  "expected_model_output": {
+    "risk_type": "flood",
+    "minimum_acceptable_severity": "high",
+    "minimum_acceptable_confidence": 0.7
+  }
+}

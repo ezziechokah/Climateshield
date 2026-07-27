@@ -1,0 +1,9 @@
+{
+  "//": "Default feature-flag state. Mirrors the FEATURE_* variables in .env.example. Overridable per environment/agency via the System Configuration module (docs/prototype/09_Administration_Pages.md#settings).",
+  "FEATURE_AI_ASSISTANT": true,
+  "FEATURE_MOBILE_APP": false,
+  "FEATURE_MULTI_TENANT": false,
+  "FEATURE_DARK_MODE": false,
+  "FEATURE_INFRASTRUCTURE_RISK": true,
+  "FEATURE_POPULATION_EXPOSURE": true
+}

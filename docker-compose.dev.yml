@@ -1,0 +1,85 @@
+# Development overlay: bind-mounts source for hot reload and swaps runtime
+# commands for their watch-mode equivalents. Applied on top of
+# docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Mirrors `make dev` / scripts/run-dev.sh.
+
+services:
+  frontend:
+    build:
+      target: build # stop at the build stage; Vite dev server replaces nginx locally
+    command: ["npm", "run", "dev", "--workspace=frontend", "--", "--host", "0.0.0.0"]
+    volumes:
+      - ./frontend:/workspace/frontend
+      - ./packages:/workspace/packages
+      - /workspace/frontend/node_modules
+    ports:
+      - "3000:5173" # Vite default dev server port
+
+  gateway:
+    build: { target: build }
+    command: ["npm", "run", "dev", "--workspace=backend/gateway"]
+    volumes:
+      - ./backend/gateway:/workspace/backend/gateway
+      - ./packages:/workspace/packages
+      - /workspace/backend/gateway/node_modules
+    environment:
+      LOG_LEVEL: debug
+
+  auth-service:
+    build: { target: build }
+    command: ["npm", "run", "dev", "--workspace=backend/auth-service"]
+    volumes:
+      - ./backend/auth-service:/workspace/backend/auth-service
+      - /workspace/backend/auth-service/node_modules
+
+  climate-data-service:
+    build: { target: build }
+    command: ["npm", "run", "dev", "--workspace=backend/climate-data-service"]
+    volumes:
+      - ./backend/climate-data-service:/workspace/backend/climate-data-service
+      - /workspace/backend/climate-data-service/node_modules
+
+  alerting-service:
+    build: { target: build }
+    command: ["npm", "run", "dev", "--workspace=backend/alerting-service"]
+    volumes:
+      - ./backend/alerting-service:/workspace/backend/alerting-service
+      - /workspace/backend/alerting-service/node_modules
+
+  reporting-service:
+    build: { target: build }
+    command: ["npm", "run", "dev", "--workspace=backend/reporting-service"]
+    volumes:
+      - ./backend/reporting-service:/workspace/backend/reporting-service
+      - /workspace/backend/reporting-service/node_modules
+
+  admin-audit-service:
+    build: { target: build }
+    command: ["npm", "run", "dev", "--workspace=backend/admin-audit-service"]
+    volumes:
+      - ./backend/admin-audit-service:/workspace/backend/admin-audit-service
+      - /workspace/backend/admin-audit-service/node_modules
+
+  risk-assessment-service:
+    build: { target: deps }
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+    volumes:
+      - ./backend/risk-assessment-service:/app
+
+  ai-engine:
+    build: { target: deps }
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"]
+    volumes:
+      - ./ai-engine:/app
+
+  gis-services:
+    build: { target: deps }
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8003", "--reload"]
+    volumes:
+      - ./gis-services:/app
+
+  climate-processing-scheduler:
+    volumes:
+      - ./climate-processing/dags:/opt/airflow/dags

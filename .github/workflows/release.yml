@@ -1,0 +1,71 @@
+name: Release Pipeline
+
+# Cuts a release branch to a tagged, published release per
+# docs/16_Git_Workflow.md#tagging--releases and
+# docs/workflows/02_DevOps_Visuals.md#release-pipeline. Triggered manually
+# (workflow_dispatch) rather than on every merge, since a release is a
+# deliberate decision, not an automatic side effect of merging to main.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Semantic version to release, e.g. 1.2.0 (no leading 'v')"
+        required: true
+      release_branch:
+        description: "Release branch to cut from develop, e.g. release/1.2.0"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cut-release-branch:
+    name: Cut release branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: develop, fetch-depth: 0 }
+      - name: Create release branch
+        run: |
+          git checkout -b "${{ inputs.release_branch }}"
+          git push origin "${{ inputs.release_branch }}"
+
+  generate-release-notes:
+    name: Generate release notes from Conventional Commits
+    needs: cut-release-branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ inputs.release_branch }}", fetch-depth: 0 }
+      - name: Generate notes (conventional-changelog)
+        run: |
+          npx conventional-changelog-cli -p angular -i CHANGELOG.md -s
+      - name: Commit changelog update
+        run: |
+          git config user.name "csn-release-bot"
+          git config user.email "release-bot@climateshield-nexus.example"
+          git add CHANGELOG.md
+          git commit -m "docs(changelog): v${{ inputs.version }} release notes"
+          git push origin "${{ inputs.release_branch }}"
+
+  open-release-pr:
+    name: Open PR into main
+    needs: generate-release-notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ inputs.release_branch }}" \
+            --title "Release v${{ inputs.version }}" \
+            --body "Automated release PR for v${{ inputs.version }}. Merging triggers deploy-production.yml. See docs/16_Git_Workflow.md#tagging--releases."
+
+  # Tagging happens after this PR is reviewed and merged (see
+  # docs/templates/release_notes_template.md for the human sign-off this
+  # PR requires before merge) — deploy-production.yml then takes over.

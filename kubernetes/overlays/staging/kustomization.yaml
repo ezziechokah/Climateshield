@@ -1,0 +1,59 @@
+# Staging overlay — mirrors production topology at reduced scale, per
+# docs/diagrams/14_Deployment_Diagrams.md#staging. Auto-applied on merge to
+# `develop` by .github/workflows/deploy-staging.yml.
+# Apply: kubectl apply -k kubernetes/overlays/staging
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - target: { kind: Deployment, name: gateway }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target: { kind: Deployment, name: climate-data-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target: { kind: Deployment, name: risk-assessment-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target: { kind: Deployment, name: alerting-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target: { kind: Ingress, name: climateshield-nexus }
+    patch: |
+      - op: replace
+        path: /spec/tls/0/hosts
+        value: ["staging-app.climateshield-nexus.example", "staging-api.climateshield-nexus.example"]
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-api.climateshield-nexus.example
+      - op: replace
+        path: /spec/rules/1/host
+        value: staging-app.climateshield-nexus.example
+
+images:
+  - name: ghcr.io/climateshield-nexus/gateway
+    newTag: staging
+  - name: ghcr.io/climateshield-nexus/climate-data-service
+    newTag: staging
+  - name: ghcr.io/climateshield-nexus/risk-assessment-service
+    newTag: staging
+  - name: ghcr.io/climateshield-nexus/alerting-service
+    newTag: staging
+
+configMapGenerator:
+  - name: services-common-config
+    behavior: merge
+    literals:
+      - APP_ENV=staging
+      - LOG_LEVEL=info

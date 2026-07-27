@@ -1,0 +1,60 @@
+# API Gateway policy configuration — rate limiting, request validation, and
+# CORS as enforced by the Gateway service (backend/gateway/) at the
+# application layer. This is the CONFIGURATION contract the gateway's
+# middleware reads at startup; it contains no implementation.
+# Mirrors docs/12_API_Specification.md#rate-limiting.
+
+rate_limits:
+  # Keyed by consumer identity type — checked in this priority order.
+  authenticated_user:
+    requests_per_minute: 120
+    burst: 20
+  api_key_public_tier:
+    requests_per_minute: 60
+    burst: 10
+  api_key_partner_tier:
+    requests_per_minute: 600
+    burst: 100
+  unauthenticated_per_ip:
+    requests_per_minute: 30
+    burst: 5
+
+  # Path-specific overrides — the alert-approval action is intentionally
+  # NOT rate-limited as aggressively as general traffic, since a Disaster
+  # Management Officer must never be blocked from approving/rejecting a
+  # time-critical alert by their own normal usage pattern.
+  path_overrides:
+    - path: "/v1/alerts/*/approve"
+      requests_per_minute: 300
+    - path: "/v1/alerts/*/reject"
+      requests_per_minute: 300
+    - path: "/v1/ai/query"
+      requests_per_minute: 20 # LLM calls are expensive; throttle more aggressively than general API traffic
+
+response_on_exceeded:
+  status_code: 429
+  header: "Retry-After"
+  body:
+    error:
+      code: "RATE_LIMITED"
+      message: "Too many requests. Please slow down and retry after the indicated interval."
+
+cors:
+  allowed_origins:
+    - "https://app.climateshield-nexus.example"
+    - "https://staging-app.climateshield-nexus.example"
+    # Local dev origins added via environment override, never wildcarded in
+    # any deployed environment.
+  allowed_methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"]
+  allowed_headers: ["Authorization", "Content-Type", "X-API-Key"]
+  allow_credentials: true
+  max_age_seconds: 600
+
+request_validation:
+  max_body_size_mb: 25 # matches NFR: 25MB max UI-initiated upload, docs/28_Validation_Rules.md#file-upload-validation
+  reject_unknown_content_types: true
+  enforce_json_schema: true # every request body validated against docs/api/openapi.yaml component schemas before reaching a service
+
+timeouts:
+  upstream_request_timeout_ms: 10000
+  keep_alive_timeout_ms: 65000

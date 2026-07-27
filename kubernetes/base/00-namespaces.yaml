@@ -1,0 +1,44 @@
+# Namespaces implementing the network-isolation model in
+# docs/06_System_Architecture.md#deployment-topology and
+# docs/architecture/system-architecture-views.md#network-architecture.
+# One-directional reachability is enforced by kubernetes/base/network-policies.yaml:
+# gateway -> services -> data, with pipelines/observability isolated laterally.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: csn-gateway
+  labels:
+    app.kubernetes.io/part-of: climateshield-nexus
+    csn/tier: edge
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: csn-services
+  labels:
+    app.kubernetes.io/part-of: climateshield-nexus
+    csn/tier: application
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: csn-data
+  labels:
+    app.kubernetes.io/part-of: climateshield-nexus
+    csn/tier: data
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: csn-pipelines
+  labels:
+    app.kubernetes.io/part-of: climateshield-nexus
+    csn/tier: pipelines
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: csn-observability
+  labels:
+    app.kubernetes.io/part-of: climateshield-nexus
+    csn/tier: observability

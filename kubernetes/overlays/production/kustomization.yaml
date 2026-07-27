@@ -1,0 +1,68 @@
+# Production overlay — full replica counts, HPA headroom, and canary-ready
+# image tagging per docs/15_Deployment_Guide.md#release-process. Applied by
+# .github/workflows/deploy-production.yml after manual approval.
+# Apply: kubectl apply -k kubernetes/overlays/production
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - pdb-climate-data-service.yaml
+  - pdb-risk-assessment-service.yaml
+
+patches:
+  - target: { kind: Deployment, name: gateway }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target: { kind: Deployment, name: climate-data-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target: { kind: Deployment, name: risk-assessment-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target: { kind: Deployment, name: alerting-service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 4
+  - target: { kind: HorizontalPodAutoscaler, name: gateway }
+    patch: |
+      - op: replace
+        path: /spec/minReplicas
+        value: 3
+      - op: replace
+        path: /spec/maxReplicas
+        value: 15
+  - target: { kind: StatefulSet, name: postgres }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      # NOTE: production Postgres HA (primary + streaming replica) is
+      # provisioned via Terraform-managed infra or a DB operator, not this
+      # StatefulSet — see terraform/modules/database and
+      # docs/architecture/system-architecture-views.md#high-availability-architecture.
+      # This patch is a placeholder until that decision (docs/42_Final_Project_Checklist.md) lands.
+
+images:
+  - name: ghcr.io/climateshield-nexus/gateway
+    newTag: stable # CD pipeline overrides per-release with the actual semver tag
+  - name: ghcr.io/climateshield-nexus/climate-data-service
+    newTag: stable
+  - name: ghcr.io/climateshield-nexus/risk-assessment-service
+    newTag: stable
+  - name: ghcr.io/climateshield-nexus/alerting-service
+    newTag: stable
+
+configMapGenerator:
+  - name: services-common-config
+    behavior: merge
+    literals:
+      - APP_ENV=production
+      - LOG_LEVEL=warn

@@ -1,0 +1,65 @@
+{
+  // VS Code / GitHub Codespaces Dev Container definition — gives every one
+  // of the 5 developers an identical Node + Python + Docker CLI environment
+  // regardless of host OS (Windows/macOS/Linux), eliminating "works on my
+  // machine" drift. See docs/34_Developer_Guide.md and docs/18_setup docs.
+  "name": "ClimateShield Nexus",
+  "dockerComposeFile": ["../docker-compose.yml", "../docker-compose.dev.yml", "docker-compose.extend.yml"],
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.11" },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
+  },
+
+  "postCreateCommand": "bash scripts/onboarding.sh --devcontainer",
+
+  "remoteUser": "vscode",
+
+  "forwardPorts": [3000, 4000, 4001, 4002, 4003, 4004, 4005, 8001, 8002, 8003, 5432, 5433, 6379, 9092, 9000, 9001, 8080],
+  "portsAttributes": {
+    "3000": { "label": "Frontend (Vite)" },
+    "4000": { "label": "API Gateway" },
+    "5432": { "label": "PostgreSQL/PostGIS" },
+    "5433": { "label": "TimescaleDB" },
+    "9000": { "label": "MinIO (S3 API)" },
+    "9001": { "label": "MinIO Console" },
+    "8080": { "label": "GeoServer" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Mirrors .vscode/settings.json — duplicated here because Codespaces
+        // does not always load the workspace .vscode/ before container start.
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "python.defaultInterpreterPath": "/usr/local/bin/python3",
+        "python.testing.pytestEnabled": true
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "hashicorp.terraform",
+        "redhat.vscode-yaml",
+        "bierner.markdown-mermaid",
+        "streetsidesoftware.code-spell-checker",
+        "eamodio.gitlens",
+        "42crunch.vscode-openapi",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg"
+      ]
+    }
+  }
+}

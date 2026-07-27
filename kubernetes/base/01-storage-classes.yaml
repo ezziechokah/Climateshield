@@ -1,0 +1,33 @@
+# StorageClasses used by the PersistentVolumeClaims in kubernetes/base/data/.
+# `provisioner` is a placeholder — set to the concrete CSI driver for the
+# target environment (see docs/diagrams/14_Deployment_Diagrams.md):
+#   - Cloud:            the cloud provider's CSI driver (e.g. ebs.csi.aws.com)
+#   - Gov Data Center:   the on-prem CSI driver (e.g. Longhorn, Ceph-CSI, or
+#                        local-path-provisioner for single-node dev clusters)
+# Environment overlays (kubernetes/overlays/<env>/) patch `provisioner` and
+# `parameters` to match the actual cluster.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csn-standard
+  labels:
+    app.kubernetes.io/part-of: climateshield-nexus
+provisioner: kubernetes.io/no-provisioner # overlay-patched per environment
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+---
+# Faster-tier storage for TimescaleDB/PostgreSQL — high-IOPS climate/risk
+# workloads (docs/09_Database_Dictionary.md#indexing-strategy) benefit from
+# a distinct class so operators can provision SSD-backed volumes here without
+# affecting the general-purpose class above.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csn-fast-ssd
+  labels:
+    app.kubernetes.io/part-of: climateshield-nexus
+provisioner: kubernetes.io/no-provisioner # overlay-patched per environment
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true

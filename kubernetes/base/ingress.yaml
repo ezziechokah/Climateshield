@@ -1,0 +1,34 @@
+# Public-facing Ingress — the only object in the cluster that accepts
+# internet traffic (fronted further by a cloud/on-prem WAF+LB per
+# docs/diagrams/14_Deployment_Diagrams.md). TLS is issued automatically by
+# cert-manager via the ClusterIssuer in security/cert-manager-cluster-issuer.yaml.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: climateshield-nexus
+  namespace: csn-gateway
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "25m" # matches NFR: 25MB max UI-initiated upload
+    nginx.ingress.kubernetes.io/limit-rps: "30" # backstop; real rate limiting is at the gateway (docs/12_API_Specification.md#rate-limiting)
+spec:
+  tls:
+    - hosts: ["app.climateshield-nexus.example", "api.climateshield-nexus.example"]
+      secretName: climateshield-nexus-tls
+  rules:
+    - host: api.climateshield-nexus.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: gateway, port: { number: 80 } }
+    - host: app.climateshield-nexus.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: gateway, port: { number: 80 } } # gateway serves as BFF; static frontend assets are CDN-fronted separately per docs/06_System_Architecture.md

@@ -1,0 +1,51 @@
+# Redis — session/rate-limit cache. Single instance in base; production
+# overlay patches this to a primary/replica topology (docs/architecture/system-architecture-views.md#high-availability-architecture).
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: csn-data
+  labels: { app.kubernetes.io/name: redis }
+spec:
+  serviceName: redis
+  replicas: 1 # production overlay: primary/replica
+  selector:
+    matchLabels: { app.kubernetes.io/name: redis }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: redis }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command: ["redis-server", "--appendonly", "yes"]
+          ports: [{ name: redis, containerPort: 6379 }]
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+          volumeMounts:
+            - { name: redis-data, mountPath: /data }
+          readinessProbe:
+            exec: { command: ["redis-cli", "ping"] }
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata: { name: redis-data }
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: csn-standard
+        resources: { requests: { storage: 5Gi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: csn-data
+  labels: { app.kubernetes.io/name: redis }
+spec:
+  clusterIP: None
+  selector: { app.kubernetes.io/name: redis }
+  ports: [{ name: redis, port: 6379, targetPort: redis }]

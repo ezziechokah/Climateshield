@@ -1,0 +1,94 @@
+# NetworkPolicies enforcing the one-directional reachability model in
+# docs/13_Security_Design.md#network-security and
+# docs/architecture/system-architecture-views.md#network-architecture:
+#   gateway -> services -> data
+# No namespace accepts ingress from outside its declared allow-list; a
+# default-deny-all policy in every namespace closes every other path.
+
+# ---- Default deny-all ingress in every namespace, then allow-list below ----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: csn-gateway
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: csn-services
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: csn-data
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: csn-pipelines
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+
+---
+# ---- csn-gateway: only the ingress controller may reach the gateway ----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-gateway
+  namespace: csn-gateway
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: gateway } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: ingress-nginx } }
+      ports: [{ protocol: TCP, port: 4000 }]
+
+---
+# ---- csn-services: only the gateway may reach application services ----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-to-services
+  namespace: csn-services
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: csn-gateway } }
+
+---
+# ---- csn-data: only services and pipelines may reach the data tier ----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-services-and-pipelines-to-data
+  namespace: csn-data
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: csn-services } }
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: csn-pipelines } }
+
+---
+# ---- csn-pipelines: no ingress required (Airflow polls out, never receives
+#      inbound traffic) — default-deny above already covers this; egress to
+#      external providers is unrestricted here but should be tightened with
+#      an explicit allow-list of provider IP ranges once known (Phase 1
+#      discovery item, docs/42_Final_Project_Checklist.md).

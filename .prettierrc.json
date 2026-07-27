@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "// purpose": "Shared formatting rules for all TS/JS/JSON/YAML/Markdown across the monorepo. Enforced in pre-commit (see .husky/) and CI (.github/workflows/lint.yml). See docs/17_Coding_Standards.md.",
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "bracketSpacing": true,
+  "quoteProps": "as-needed",
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": { "proseWrap": "preserve", "printWidth": 120 }
+    },
+    {
+      "files": ["*.yml", "*.yaml"],
+      "options": { "singleQuote": false }
+    },
+    {
+      "files": "*.json",
+      "options": { "trailingComma": "none" }
+    }
+  ]
+}

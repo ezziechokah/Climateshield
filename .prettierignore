@@ -1,0 +1,19 @@
+# Do not format generated, vendored, or intentionally-raw content.
+node_modules
+dist
+build
+coverage
+.next
+sdk/typescript
+sdk/python
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+*.min.js
+*.min.css
+mock-data/*.json
+docs/api/openapi.yaml
+kubernetes/**/*.yaml
+terraform/**/*.tf
+.terraform
+CHANGELOG.md

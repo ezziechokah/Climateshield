@@ -1,0 +1,39 @@
+# Loki configuration — lightweight log aggregation used for fast Grafana
+# log queries alongside OpenSearch's full-text/long-retention role (see
+# logging-strategy.md#shipping-pipeline). Single-binary mode is sufficient
+# at this platform's scale; revisit (microservices mode) only if ingestion
+# volume outgrows it.
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2026-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  retention_period: 2160h # 90 days, matches logging-strategy.md#retention "hot" tier
+  ingestion_rate_mb: 16
+  ingestion_burst_size_mb: 32
+
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true

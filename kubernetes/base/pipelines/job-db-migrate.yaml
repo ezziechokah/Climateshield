@@ -1,0 +1,27 @@
+# Database migration Job — run once per release by the CD pipeline
+# (.github/workflows/deploy-production.yml) BEFORE the new application
+# image rolls out, since migrations must land before the code that expects
+# the new schema. Kustomize generates a unique name suffix per apply via
+# `kubectl apply -k` (see kubernetes/overlays/production/kustomization.yaml)
+# so this Job is never silently skipped as "already exists".
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+  namespace: csn-pipelines
+spec:
+  backoffLimit: 1 # a failed migration must stop the deploy, not silently retry against a half-migrated schema
+  activeDeadlineSeconds: 900
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext: { runAsNonRoot: true, runAsUser: 1000 }
+      containers:
+        - name: db-migrate
+          image: ghcr.io/climateshield-nexus/db-migrate:latest # built from database/ per docs/15_Deployment_Guide.md
+          envFrom:
+            - configMapRef: { name: services-common-config }
+            - secretRef: { name: climate-data-service-secrets } # reuses the same DB credentials
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }

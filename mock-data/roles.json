@@ -1,0 +1,18 @@
+{
+  "roles": [
+    { "id": "00000000-0000-4000-8000-000000000001", "name": "Super Administrator", "code": "super_admin", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000002", "name": "KMD Administrator", "code": "kmd_admin", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000003", "name": "Meteorologist", "code": "meteorologist", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000004", "name": "Climate Scientist", "code": "climate_scientist", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000005", "name": "GIS Analyst", "code": "gis_analyst", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000006", "name": "Disaster Management Officer", "code": "disaster_mgmt_officer", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000007", "name": "Government Planner", "code": "government_planner", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000008", "name": "Agriculture Officer", "code": "agriculture_officer", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000009", "name": "Aviation Officer", "code": "aviation_officer", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000010", "name": "Water Resources Officer", "code": "water_resources_officer", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000011", "name": "Health Sector Officer", "code": "health_sector_officer", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000012", "name": "NGO", "code": "ngo", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000013", "name": "Researcher", "code": "researcher", "is_system_role": true },
+    { "id": "00000000-0000-4000-8000-000000000014", "name": "Public User", "code": "public_user", "is_system_role": true }
+  ]
+}

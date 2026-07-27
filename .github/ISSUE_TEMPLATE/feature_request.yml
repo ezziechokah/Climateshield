@@ -1,0 +1,41 @@
+name: Feature Request
+description: Propose a new feature or enhancement for ClimateShield Nexus
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Structured version of docs/templates/feature_request_template.md.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations: { required: true }
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What user problem does this solve? Reference a persona from docs/02_Business_Requirements.md#user-personas if applicable.
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+    validations: { required: true }
+  - type: input
+    id: modules
+    attributes:
+      label: Affected Module(s)
+      description: See docs/39_Module_Breakdown.md
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (MoSCoW)
+      description: docs/25_Product_Backlog.md#moscow-legend
+      options: ["Must", "Should", "Could", "Won't (this release)"]
+    validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Draft Acceptance Criteria (Gherkin)
+      render: gherkin

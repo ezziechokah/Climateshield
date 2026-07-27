@@ -1,0 +1,9 @@
+# Root-level Python baseline — installed by CI jobs that operate across the
+# whole repo (e.g., docs/schema validation) rather than a single service.
+# Each Python service (ai-engine/, climate-processing/, gis-services/) owns
+# its own requirements.txt with service-specific dependencies (FastAPI,
+# xarray, GDAL, PyTorch, etc. per docs/06_System_Architecture.md#technology-stack) —
+# this file intentionally stays minimal.
+
+jsonschema==4.23.0
+pyyaml==6.0.2

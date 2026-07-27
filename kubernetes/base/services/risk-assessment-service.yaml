@@ -1,0 +1,74 @@
+# Representative Deployment+Service for a Python/FastAPI backend
+# microservice. ai-engine and gis-services (each with their own
+# kubernetes/base/ manifest once implemented) follow this identical
+# pattern — see kubernetes/base/services/README.md.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-assessment-service
+  namespace: csn-services
+  labels:
+    app.kubernetes.io/name: risk-assessment-service
+    app.kubernetes.io/part-of: climateshield-nexus
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app.kubernetes.io/name: risk-assessment-service }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: risk-assessment-service
+        app.kubernetes.io/part-of: climateshield-nexus
+    spec:
+      serviceAccountName: risk-assessment-service
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: risk-assessment-service
+          image: ghcr.io/climateshield-nexus/risk-assessment-service:latest
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 8001 }]
+          envFrom:
+            - configMapRef: { name: services-common-config }
+            - secretRef: { name: risk-assessment-service-secrets }
+          resources:
+            # Higher default than Node services — hazard scoring is more
+            # compute-intensive (docs/design/03_Module_Specifications.md#risk-assessment).
+            requests: { cpu: 500m, memory: 512Mi }
+            limits: { cpu: "2", memory: 1Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: risk-assessment-service
+  namespace: csn-services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-assessment-service
+  namespace: csn-services
+  labels: { app.kubernetes.io/name: risk-assessment-service }
+spec:
+  type: ClusterIP
+  selector: { app.kubernetes.io/name: risk-assessment-service }
+  ports: [{ name: http, port: 80, targetPort: http }]

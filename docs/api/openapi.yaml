@@ -1,0 +1,1400 @@
+openapi: 3.1.0
+info:
+  title: ClimateShield Nexus API
+  description: >
+    AI-Powered Climate Risk Intelligence Platform API — complete contract
+    covering every endpoint in docs/12_API_Specification.md#endpoint-catalog.
+    This file is a CONTRACT ONLY: no server implementation exists yet (see
+    docs/40_Developer_Assignment.md for build ownership). Do not add example
+    server code here — see examples/ for usage snippets and sdk/ for the
+    generated clients built from this spec.
+  version: "1.0.0"
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: ClimateShield Nexus Architecture Team
+servers:
+  - url: https://api.climateshield-nexus.example/v1
+    description: Production
+  - url: https://staging-api.climateshield-nexus.example/v1
+    description: Staging
+  - url: http://localhost:4000/v1
+    description: Local development
+
+tags:
+  - name: auth
+    description: Authentication and session management — docs/04_Functional_Requirements.md#authentication
+  - name: users
+    description: User management — docs/04_Functional_Requirements.md#user-management
+  - name: roles
+    description: Role & permission management — docs/04_Functional_Requirements.md#role-management
+  - name: climate-data
+    description: Observations, stations, forecasts — docs/04_Functional_Requirements.md#climate-data-management
+  - name: risk
+    description: Risk assessments and models — docs/04_Functional_Requirements.md#risk-assessment
+  - name: gis
+    description: Spatial layers and queries — docs/04_Functional_Requirements.md#gis--remote-sensing
+  - name: reports
+    description: Report templates and generation — docs/04_Functional_Requirements.md#climate-reports
+  - name: ai
+    description: AI Climate Assistant — docs/04_Functional_Requirements.md#ai-climate-assistant
+  - name: alerts
+    description: Alerts and subscriptions — docs/04_Functional_Requirements.md#alerts--notifications
+  - name: admin
+    description: Audit logs, API keys, system health — docs/04_Functional_Requirements.md#platform-operations
+
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+
+paths:
+  # ============================================================ Auth =====
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Email/password login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        "200":
+          description: Login successful, or MFA challenge required
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /auth/sso/callback:
+    post:
+      tags: [auth]
+      summary: Government OIDC SSO callback
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, state]
+              properties:
+                code: { type: string }
+                state: { type: string }
+      responses:
+        "200":
+          description: SSO login successful
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      summary: Refresh an access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        "200":
+          description: New access/refresh token pair
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenPair" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Revoke the current session
+      responses:
+        "204": { description: Session revoked }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/mfa/verify:
+    post:
+      tags: [auth]
+      summary: Verify an MFA challenge
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [challenge_id, code]
+              properties:
+                challenge_id: { type: string }
+                code: { type: string, pattern: "^[0-9]{6}$" }
+      responses:
+        "200":
+          description: MFA verified, session issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenPair" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/password-reset:
+    post:
+      tags: [auth]
+      summary: Request a password reset email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties: { email: { type: string, format: email } }
+      responses:
+        "202": { description: "Generic confirmation (never discloses whether the email exists)" }
+
+  /auth/password-reset/confirm:
+    post:
+      tags: [auth]
+      summary: Confirm a password reset with a token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, new_password]
+              properties:
+                token: { type: string }
+                new_password: { type: string, format: password, minLength: 12 }
+      responses:
+        "200": { description: Password updated }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  # ============================================================ Users =====
+  /users:
+    get:
+      tags: [users]
+      summary: List users (agency-scoped)
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: role
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/UserStatus" }
+      responses:
+        "200":
+          description: Paginated user list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserListResponse" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [users]
+      summary: Invite/create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserCreateRequest" }
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /users/me:
+    get:
+      tags: [users]
+      summary: Get the authenticated user's own profile
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+
+  /users/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: [users]
+      summary: Get a user by ID
+      responses:
+        "200":
+          description: User detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [users]
+      summary: Update a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserUpdateRequest" }
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [users]
+      summary: Deactivate a user (soft delete)
+      responses:
+        "204": { description: Deactivated }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /users/bulk-import:
+    post:
+      tags: [users]
+      summary: Bulk import users via CSV
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        "200":
+          description: Row-level validation/import report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BulkImportReport" }
+
+  # ============================================================ Roles =====
+  /roles:
+    get:
+      tags: [roles]
+      summary: List roles
+      responses:
+        "200":
+          description: Role list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Role" }
+    post:
+      tags: [roles]
+      summary: Create a custom role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RoleCreateRequest" }
+      responses:
+        "201":
+          description: Role created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+
+  /roles/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [roles]
+      summary: Update a role's permissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission_ids:
+                  type: array
+                  items: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Updated role
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "409":
+          description: Role deletion blocked — active users still assigned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /permissions:
+    get:
+      tags: [roles]
+      summary: List the full permission catalog
+      responses:
+        "200":
+          description: Permission catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Permission" }
+
+  # ===================================================== Climate Data =====
+  /stations:
+    get:
+      tags: [climate-data]
+      summary: List stations
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Station list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Station" }
+
+  /observations:
+    get:
+      tags: [climate-data]
+      summary: Query observations
+      parameters:
+        - name: station_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: parameter
+          in: query
+          schema: { type: string, examples: ["rainfall", "temperature"] }
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Paginated observations
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ObservationListResponse" }
+    post:
+      tags: [climate-data]
+      summary: Manual observation entry/correction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ObservationCreateRequest" }
+      responses:
+        "201":
+          description: Observation recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Observation" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /forecast-models:
+    get:
+      tags: [climate-data]
+      summary: List forecast models
+      responses:
+        "200":
+          description: Forecast model list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ForecastModel" }
+
+  /forecast-runs/{id}/values:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [climate-data]
+      summary: Get forecast values for a run
+      responses:
+        "200":
+          description: Forecast values
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ForecastValue" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /climate-indices:
+    get:
+      tags: [climate-data]
+      summary: Query derived climate indices (SPI, SPEI, heat index)
+      parameters:
+        - name: index_type
+          in: query
+          schema: { type: string, enum: [SPI, SPEI, heat_index, NDVI] }
+        - name: admin_boundary_id
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Climate index list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ClimateIndex" }
+
+  # ========================================================= Risk =====
+  /risk-assessments:
+    get:
+      tags: [risk]
+      summary: Query current/historical risk assessments
+      parameters:
+        - name: admin_boundary_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: hazard_type
+          in: query
+          schema: { $ref: "#/components/schemas/HazardType" }
+        - name: severity
+          in: query
+          schema: { $ref: "#/components/schemas/Severity" }
+        - name: sort
+          in: query
+          schema: { type: string, example: "-assessed_at" }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Paginated risk assessments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskAssessmentListResponse" }
+
+  /risk-assessments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [risk]
+      summary: Get a single risk assessment with contributing sources
+      responses:
+        "200":
+          description: Risk assessment detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskAssessment" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /risk-models:
+    get:
+      tags: [risk]
+      summary: List active risk models and versions
+      responses:
+        "200":
+          description: Risk model list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RiskModel" }
+
+  /risk-models/{id}/recompute:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [risk]
+      summary: Manually trigger a recompute (privileged)
+      responses:
+        "202": { description: Recompute triggered }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  # ============================================================= GIS =====
+  /gis/layers:
+    get:
+      tags: [gis]
+      summary: List available GIS layers
+      responses:
+        "200":
+          description: Layer list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GisLayer" }
+
+  /gis/layers/{id}/tiles/{z}/{x}/{y}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+      - name: z
+        in: path
+        required: true
+        schema: { type: integer }
+      - name: x
+        in: path
+        required: true
+        schema: { type: integer }
+      - name: y
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [gis]
+      summary: Vector/raster tile endpoint (WMTS-style)
+      responses:
+        "200":
+          description: Tile image or vector tile
+          content:
+            image/png: { schema: { type: string, format: binary } }
+            application/vnd.mapbox-vector-tile: { schema: { type: string, format: binary } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /gis/query:
+    get:
+      tags: [gis]
+      summary: Point/polygon spatial query
+      parameters:
+        - name: lat
+          in: query
+          schema: { type: number }
+        - name: lon
+          in: query
+          schema: { type: number }
+      responses:
+        "200":
+          description: Risk/GIS summary at the queried location
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GisQueryResponse" }
+
+  /gis/satellite-products:
+    get:
+      tags: [gis]
+      summary: List satellite product metadata
+      responses:
+        "200":
+          description: Satellite product list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SatelliteProduct" }
+
+  # ========================================================= Reports =====
+  /report-templates:
+    get:
+      tags: [reports]
+      summary: List report templates
+      responses:
+        "200":
+          description: Template list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ReportTemplate" }
+
+  /reports:
+    post:
+      tags: [reports]
+      summary: Request on-demand report generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReportCreateRequest" }
+      responses:
+        "202":
+          description: Report generation queued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReportInstance" }
+
+  /reports/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [reports]
+      summary: Get report status/download URL
+      responses:
+        "200":
+          description: Report instance
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReportInstance" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ============================================================== AI =====
+  /ai/query:
+    post:
+      tags: [ai]
+      summary: Submit a natural-language query to the AI Climate Assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question: { type: string, maxLength: 2000 }
+                conversation_id: { type: string, format: uuid }
+      responses:
+        "200":
+          description: AI response with citations and confidence
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiResponse" }
+        "403":
+          description: Role not permitted to use the AI Assistant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /ai/conversations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [ai]
+      summary: Retrieve conversation history
+      responses:
+        "200":
+          description: Conversation with message history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiConversation" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /ai/knowledge-base:
+    get:
+      tags: [ai]
+      summary: Search knowledge base articles
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Matching articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/KnowledgeBaseArticle" }
+
+  # =========================================================== Alerts =====
+  /alerts:
+    get:
+      tags: [alerts]
+      summary: List alerts
+      parameters:
+        - name: admin_boundary_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: severity
+          in: query
+          schema: { $ref: "#/components/schemas/Severity" }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/AlertStatus" }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Paginated alerts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AlertListResponse" }
+
+  /alerts/{id}/approve:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [alerts]
+      summary: Approve a pending alert (privileged)
+      responses:
+        "200":
+          description: Alert approved and dispatch initiated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Alert" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409":
+          description: Alert is not in a state that can be approved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /alerts/{id}/reject:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [alerts]
+      summary: Reject a pending alert (privileged)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties: { reason: { type: string } }
+      responses:
+        "200":
+          description: Alert rejected
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Alert" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /alert-subscriptions:
+    post:
+      tags: [alerts]
+      summary: Create an alert subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AlertSubscriptionCreateRequest" }
+      responses:
+        "201":
+          description: Subscription created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AlertSubscription" }
+
+  /alert-subscriptions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      tags: [alerts]
+      summary: Remove an alert subscription
+      responses:
+        "204": { description: Removed }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ===================================================== Administration =====
+  /audit-logs:
+    get:
+      tags: [admin]
+      summary: Query the audit log (privileged)
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+        - name: action
+          in: query
+          schema: { type: string }
+        - name: entity_type
+          in: query
+          schema: { type: string }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Paginated audit log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AuditLogEntry" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /system/health:
+    get:
+      tags: [admin]
+      summary: Service/pipeline health summary
+      security: []
+      responses:
+        "200":
+          description: Health summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SystemHealth" }
+
+  /api-keys:
+    get:
+      tags: [admin]
+      summary: List issued API keys (privileged)
+      responses:
+        "200":
+          description: API key list (secrets never returned after issuance)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ApiKey" }
+    post:
+      tags: [admin]
+      summary: Issue a new API key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApiKeyCreateRequest" }
+      responses:
+        "201":
+          description: "API key issued — the secret value is shown ONLY in this response"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKeyCreatedResponse" }
+
+  /api-keys/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      tags: [admin]
+      summary: Revoke an API key
+      responses:
+        "204": { description: Revoked }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Short-lived (15 min) access token — docs/13_Security_Design.md#authentication-architecture
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Scoped, tiered key for machine-to-machine/third-party consumers — docs/12_API_Specification.md#api-management--keys
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, default: 50, maximum: 200 }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    Unauthorized:
+      description: Missing/invalid authentication
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Authenticated but not authorized (RBAC deny)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: Conflict (e.g., duplicate role name)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After: { schema: { type: integer } }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id]
+          properties:
+            code: { type: string, example: "RISK_ASSESSMENT_NOT_FOUND" }
+            message: { type: string }
+            details: { type: object, additionalProperties: true }
+            request_id: { type: string }
+
+    HazardType:
+      type: string
+      enum: [flood, drought, heatwave, agriculture, infrastructure, population_exposure]
+    Severity:
+      type: string
+      enum: [low, moderate, high, severe, extreme]
+    AlertStatus:
+      type: string
+      enum: [pending_approval, approved, rejected, issued, expired, cancelled]
+    UserStatus:
+      type: string
+      enum: [active, suspended, deactivated]
+
+    TokenPair:
+      type: object
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        expires_in: { type: integer, example: 900 }
+
+    LoginResponse:
+      oneOf:
+        - $ref: "#/components/schemas/TokenPair"
+        - type: object
+          properties:
+            mfa_required: { type: boolean, example: true }
+            challenge_id: { type: string }
+
+    Permission:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        module: { type: string }
+        action: { type: string, enum: [view, create, edit, delete, approve, export] }
+        description: { type: string }
+
+    Role:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        is_system_role: { type: boolean }
+        permissions:
+          type: array
+          items: { $ref: "#/components/schemas/Permission" }
+
+    RoleCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        permission_ids:
+          type: array
+          items: { type: string, format: uuid }
+
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        full_name: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        status: { $ref: "#/components/schemas/UserStatus" }
+        preferred_language: { type: string, example: en }
+        mfa_enabled: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    UserCreateRequest:
+      type: object
+      required: [email, full_name, role_id]
+      properties:
+        email: { type: string, format: email }
+        full_name: { type: string }
+        role_id: { type: string, format: uuid }
+        preferred_language: { type: string, default: en }
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        full_name: { type: string }
+        role_id: { type: string, format: uuid }
+        status: { $ref: "#/components/schemas/UserStatus" }
+        preferred_language: { type: string }
+
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/User" }
+        meta: { $ref: "#/components/schemas/PageMeta" }
+
+    BulkImportReport:
+      type: object
+      properties:
+        total_rows: { type: integer }
+        succeeded: { type: integer }
+        failed: { type: integer }
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              row: { type: integer }
+              reason: { type: string }
+
+    PageMeta:
+      type: object
+      properties:
+        next_cursor: { type: [string, "null"] }
+        count: { type: integer }
+
+    Station:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        wmo_id: { type: string }
+        name: { type: string }
+        location:
+          type: object
+          properties:
+            type: { type: string, example: Point }
+            coordinates: { type: array, items: { type: number }, minItems: 2, maxItems: 2 }
+        station_type: { type: string }
+        status: { type: string }
+
+    Observation:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        station_id: { type: [string, "null"], format: uuid }
+        parameter: { type: string }
+        value: { type: number }
+        unit: { type: string }
+        observed_at: { type: string, format: date-time }
+        version: { type: integer }
+        is_corrected: { type: boolean }
+
+    ObservationCreateRequest:
+      type: object
+      required: [parameter, value, unit, observed_at]
+      properties:
+        station_id: { type: string, format: uuid }
+        parameter: { type: string }
+        value: { type: number }
+        unit: { type: string }
+        observed_at: { type: string, format: date-time }
+        correction_reason: { type: string, description: "Required when correcting an existing observation" }
+
+    ObservationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Observation" }
+        meta: { $ref: "#/components/schemas/PageMeta" }
+
+    ForecastModel:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        version: { type: string }
+        model_type: { type: string }
+
+    ForecastValue:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        forecast_run_id: { type: string, format: uuid }
+        parameter: { type: string }
+        value: { type: number }
+        unit: { type: string }
+        valid_at: { type: string, format: date-time }
+
+    ClimateIndex:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        index_type: { type: string }
+        value: { type: number }
+        computed_at: { type: string, format: date-time }
+
+    AdminBoundaryRef:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        level: { type: string, enum: [national, county, sub_county, ward] }
+
+    RiskContributingSource:
+      type: object
+      properties:
+        source_type: { type: string, enum: [observation, forecast_value, climate_index] }
+        source_ref_id: { type: string, format: uuid }
+
+    RiskAssessment:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        risk_type: { $ref: "#/components/schemas/HazardType" }
+        severity: { $ref: "#/components/schemas/Severity" }
+        confidence_score: { type: number, minimum: 0, maximum: 1 }
+        admin_boundary: { $ref: "#/components/schemas/AdminBoundaryRef" }
+        assessed_at: { type: string, format: date-time }
+        valid_until: { type: string, format: date-time }
+        contributing_sources:
+          type: array
+          items: { $ref: "#/components/schemas/RiskContributingSource" }
+
+    RiskAssessmentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/RiskAssessment" }
+        meta: { $ref: "#/components/schemas/PageMeta" }
+
+    RiskModel:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        risk_type: { $ref: "#/components/schemas/HazardType" }
+        version: { type: string }
+        active: { type: boolean }
+
+    GisLayer:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        layer_type: { type: string, enum: [vector, raster] }
+        category: { type: string }
+        is_public: { type: boolean }
+
+    GisQueryResponse:
+      type: object
+      properties:
+        admin_boundary: { $ref: "#/components/schemas/AdminBoundaryRef" }
+        risk_summary:
+          type: array
+          items: { $ref: "#/components/schemas/RiskAssessment" }
+
+    SatelliteProduct:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        provider: { type: string }
+        product_type: { type: string }
+        captured_at: { type: string, format: date-time }
+
+    ReportTemplate:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        format: { type: string, enum: [pdf, xlsx] }
+
+    ReportCreateRequest:
+      type: object
+      required: [template_id]
+      properties:
+        template_id: { type: string, format: uuid }
+        scope:
+          type: object
+          properties:
+            admin_boundary_ids:
+              type: array
+              items: { type: string, format: uuid }
+            hazard_types:
+              type: array
+              items: { $ref: "#/components/schemas/HazardType" }
+
+    ReportInstance:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        template_id: { type: string, format: uuid }
+        status: { type: string, enum: [pending, generating, ready, failed, delivered, archived] }
+        storage_uri: { type: [string, "null"] }
+        generated_at: { type: [string, "null"], format: date-time }
+
+    AiCitation:
+      type: object
+      properties:
+        source: { type: string }
+        id: { type: string }
+        time_range: { type: string }
+
+    AiResponse:
+      type: object
+      properties:
+        answer: { type: string }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        human_review_required: { type: boolean }
+        citations:
+          type: array
+          items: { $ref: "#/components/schemas/AiCitation" }
+        conversation_id: { type: string, format: uuid }
+
+    AiMessage:
+      type: object
+      properties:
+        role: { type: string, enum: [user, assistant] }
+        content: { type: string }
+        confidence_score: { type: [number, "null"] }
+        human_review_required: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    AiConversation:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        messages:
+          type: array
+          items: { $ref: "#/components/schemas/AiMessage" }
+
+    KnowledgeBaseArticle:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        category: { type: string }
+        updated_at: { type: string, format: date-time }
+
+    Alert:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        cap_identifier: { type: string }
+        hazard_type: { $ref: "#/components/schemas/HazardType" }
+        severity: { $ref: "#/components/schemas/Severity" }
+        status: { $ref: "#/components/schemas/AlertStatus" }
+        admin_boundary: { $ref: "#/components/schemas/AdminBoundaryRef" }
+        headline: { type: string }
+        description: { type: string }
+        issued_at: { type: [string, "null"], format: date-time }
+        expires_at: { type: string, format: date-time }
+
+    AlertListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Alert" }
+        meta: { $ref: "#/components/schemas/PageMeta" }
+
+    AlertSubscriptionCreateRequest:
+      type: object
+      required: [admin_boundary_id, hazard_type, channel_preference]
+      properties:
+        admin_boundary_id: { type: string, format: uuid }
+        hazard_type: { $ref: "#/components/schemas/HazardType" }
+        channel_preference: { type: string, enum: [sms, email, push, webhook] }
+        webhook_url: { type: string, format: uri }
+
+    AlertSubscription:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        admin_boundary: { $ref: "#/components/schemas/AdminBoundaryRef" }
+        hazard_type: { $ref: "#/components/schemas/HazardType" }
+        channel_preference: { type: string }
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: [string, "null"], format: uuid }
+        action: { type: string }
+        entity_type: { type: string }
+        entity_id: { type: [string, "null"], format: uuid }
+        occurred_at: { type: string, format: date-time }
+
+    SystemHealth:
+      type: object
+      properties:
+        status: { type: string, enum: [healthy, degraded, down] }
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              status: { type: string, enum: [healthy, degraded, down] }
+
+    ApiKey:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        tier: { type: string, enum: [public, partner] }
+        scope: { type: object, additionalProperties: true }
+        status: { type: string, enum: [active, revoked] }
+        last_used_at: { type: [string, "null"], format: date-time }
+
+    ApiKeyCreateRequest:
+      type: object
+      required: [name, tier]
+      properties:
+        name: { type: string }
+        tier: { type: string, enum: [public, partner] }
+        scope: { type: object, additionalProperties: true }
+
+    ApiKeyCreatedResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiKey"
+        - type: object
+          properties:
+            secret:
+              type: string
+              description: "Shown exactly once — store it now, it cannot be retrieved again."

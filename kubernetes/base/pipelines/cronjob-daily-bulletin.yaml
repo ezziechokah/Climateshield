@@ -1,0 +1,40 @@
+# Example CronJob — triggers the daily climate bulletin report generation
+# (SRS-RPT-001, docs/04_Functional_Requirements.md#climate-reports) by
+# calling the Reporting Service's internal trigger endpoint. Most scheduled
+# work (data ingestion DAGs) is orchestrated by Airflow itself
+# (climate-processing-scheduler, see docker-compose.yml) rather than K8s
+# CronJobs; this CronJob demonstrates the pattern for the small set of
+# triggers that are simpler as a direct cluster-native cron than a full DAG.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: trigger-daily-bulletin
+  namespace: csn-pipelines
+spec:
+  # 06:00 Africa/Nairobi (03:00 UTC) — see docs/25_Product_Backlog.md#epic-6-reporting
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext: { runAsNonRoot: true, runAsUser: 1000 }
+          containers:
+            - name: trigger-daily-bulletin
+              image: curlimages/curl:8.9.1
+              command:
+                - sh
+                - -c
+                - >
+                  curl -sSf -X POST
+                  http://reporting-service.csn-services.svc.cluster.local/internal/reports/trigger
+                  -H "Content-Type: application/json"
+                  -d '{"template": "daily-bulletin"}'
+              resources:
+                requests: { cpu: 50m, memory: 32Mi }
+                limits: { cpu: 200m, memory: 64Mi }

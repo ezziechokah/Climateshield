@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Missing or invalid authentication credentials.",
+    "request_id": "req_a1b2c3d4"
+  }
+}

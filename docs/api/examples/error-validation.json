@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "The request body failed schema validation.",
+    "details": {
+      "fields": [
+        { "field": "email", "reason": "must be a valid email address" },
+        { "field": "password", "reason": "must be at least 12 characters" }
+      ]
+    },
+    "request_id": "req_4f8a2c19"
+  }
+}

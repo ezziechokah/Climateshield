@@ -1,0 +1,86 @@
+# Prometheus alerting rules implementing the operational alert table in
+# docs/29_Logging_and_Monitoring.md#alerting-rules-operational. These are
+# OPERATIONAL alerts (platform health) — distinct from the climate-hazard
+# ALERT entity the platform itself issues to the public (docs/07_ERD.md#alerts--notifications-erd).
+groups:
+  - name: api-availability
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+          /
+          sum(rate(http_requests_total[5m])) by (service)
+          > 0.01
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.service }} 5xx error rate above 1% for 5 minutes"
+          description: "See docs/29_Logging_and_Monitoring.md#alerting-rules-operational — page on-call immediately."
+          runbook: "docs/36_System_Maintenance.md"
+
+      - alert: GatewayLatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="gateway"}[5m])) by (le)) > 0.3
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Gateway p95 latency above 300ms for 10 minutes (NFR-PERF-001)"
+
+  - name: alert-dispatch
+    rules:
+      - alert: AlertDispatchQueueDepthHigh
+        expr: alerting_dispatch_queue_depth > 100
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "Alert dispatch queue depth above threshold — public-safety-critical path degraded"
+          runbook: "docs/36_System_Maintenance.md#runbook-manual-alert-dispatch-channel-outage"
+
+      - alert: AlertDispatchLatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(alert_dispatch_duration_seconds_bucket[15m])) by (le)) > 300
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Alert dispatch p95 latency above 5 minutes (NFR-PERF-005)"
+
+  - name: data-freshness
+    rules:
+      - alert: DataSourceStale
+        expr: (time() - data_source_last_success_timestamp_seconds) > (data_source_sla_seconds * 2)
+        for: 5m
+        labels: { severity: high }
+        annotations:
+          summary: "{{ $labels.data_source }} has not reported within 2x its freshness SLA"
+          description: "docs/29_Logging_and_Monitoring.md#data-freshness-monitoring"
+
+  - name: security
+    rules:
+      - alert: AuditChainIntegrityBroken
+        expr: audit_chain_integrity_check_failed == 1
+        for: 0m
+        labels: { severity: critical }
+        annotations:
+          summary: "Audit log hash-chain integrity check failed — possible tampering"
+          runbook: "docs/13_Security_Design.md#incident-response"
+
+      - alert: AuthFailureSpike
+        expr: sum(rate(auth_login_failed_total[5m])) > 50
+        for: 5m
+        labels: { severity: high }
+        annotations:
+          summary: "Elevated authentication failure rate — possible credential-stuffing attempt"
+
+  - name: infrastructure
+    rules:
+      - alert: DiskSpaceHigh
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes > 0.85
+        for: 10m
+        labels: { severity: medium }
+        annotations:
+          summary: "Disk usage above 85% on {{ $labels.instance }}"
+
+      - alert: PipelineDagFailedAfterRetries
+        expr: airflow_dag_run_failed_total > 0
+        for: 0m
+        labels: { severity: high }
+        annotations:
+          summary: "A climate-processing DAG failed after exhausting retries"

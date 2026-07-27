@@ -1,0 +1,105 @@
+# Production-like overlay for LOCAL smoke-testing only — real production runs
+# on Kubernetes (see kubernetes/overlays/production/), never docker-compose.
+# This overlay exists so a developer can validate a release candidate image
+# behaves correctly under prod-like constraints (resource limits, no bind
+# mounts, edge proxy in front) before it reaches Staging.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+#
+# Mirrors `make prod` / scripts/run-production.sh.
+
+services:
+  nginx-edge:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: csn-nginx-edge
+    ports:
+      - "8080:8080"
+    depends_on: [gateway, frontend]
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+
+  frontend:
+    ports: [] # no direct external port — only reachable via nginx-edge
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 256M }
+
+  gateway:
+    ports: [] # no direct external port — only reachable via nginx-edge
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 512M }
+        reservations: { cpus: "0.25", memory: 128M }
+
+  auth-service:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 256M }
+
+  climate-data-service:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 512M }
+
+  alerting-service:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 256M }
+
+  reporting-service:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 512M }
+
+  admin-audit-service:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 256M }
+
+  risk-assessment-service:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 1G }
+
+  ai-engine:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "2.0", memory: 2G }
+
+  gis-services:
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 1G }
+
+  climate-processing-scheduler:
+    restart: unless-stopped
+  climate-processing-worker:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits: { cpus: "2.0", memory: 2G }

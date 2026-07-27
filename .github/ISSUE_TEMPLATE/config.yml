@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability
+    url: https://github.com/climateshield-nexus/climateshield-nexus/security/advisories/new
+    about: NEVER file a security vulnerability as a public issue — see SECURITY.md.
+  - name: Documentation Question
+    url: https://github.com/climateshield-nexus/climateshield-nexus/discussions
+    about: General questions — use Discussions rather than an issue.

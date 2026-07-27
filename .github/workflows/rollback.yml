@@ -1,0 +1,81 @@
+name: Rollback Pipeline
+
+# Manually-triggered rollback implementing
+# docs/workflows/02_DevOps_Visuals.md#rollback-strategy. Never automatic for
+# a FULL rollback (canary auto-rollback during the release window is handled
+# inside deploy-production.yml instead) — a post-full-rollout rollback is a
+# deliberate, logged operational decision.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to roll back"
+        required: true
+        type: choice
+        options: [staging, production]
+      target_image_tag:
+        description: "Previously-known-good image tag to roll back to (e.g. v1.1.3)"
+        required: true
+      reason:
+        description: "Why is this rollback happening? (recorded to the incident log)"
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  confirm-target-exists:
+    name: Verify target image tag exists in registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check image tags
+        run: |
+          for svc in gateway climate-data-service risk-assessment-service alerting-service; do
+            echo "Verifying ghcr.io/climateshield-nexus/${svc}:${{ inputs.target_image_tag }} exists"
+            # docker manifest inspect / crane digest would run here once images are published
+          done
+
+  rollback:
+    name: Roll back Kubernetes deployment
+    needs: confirm-target-exists
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure kubectl
+        run: echo "Configure cluster credentials for ${{ inputs.environment }} (OIDC federation, no long-lived kubeconfig secrets)"
+      - name: Patch image tags via Kustomize
+        run: |
+          cd kubernetes/overlays/${{ inputs.environment }}
+          kustomize edit set image \
+            ghcr.io/climateshield-nexus/gateway=ghcr.io/climateshield-nexus/gateway:${{ inputs.target_image_tag }} \
+            ghcr.io/climateshield-nexus/climate-data-service=ghcr.io/climateshield-nexus/climate-data-service:${{ inputs.target_image_tag }} \
+            ghcr.io/climateshield-nexus/risk-assessment-service=ghcr.io/climateshield-nexus/risk-assessment-service:${{ inputs.target_image_tag }} \
+            ghcr.io/climateshield-nexus/alerting-service=ghcr.io/climateshield-nexus/alerting-service:${{ inputs.target_image_tag }}
+      - name: Apply
+        run: kubectl apply -k kubernetes/overlays/${{ inputs.environment }}
+      - name: Verify rollout
+        run: |
+          kubectl rollout status deployment/gateway -n csn-gateway --timeout=120s
+          kubectl rollout status deployment/alerting-service -n csn-services --timeout=120s
+
+  check-migration-reversal:
+    name: Remind operator to check for destructive migrations
+    needs: rollback
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reminder
+        run: |
+          echo "::warning::If the release being rolled back included a DESTRUCTIVE migration, do NOT run a down-migration — roll forward with a hotfix instead. See docs/17_Coding_Standards.md#database-migrations and docs/workflows/02_DevOps_Visuals.md#rollback-strategy."
+
+  record-incident:
+    name: Record rollback as an incident
+    needs: rollback
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log rollback reason
+        run: |
+          echo "Rollback of ${{ inputs.environment }} to ${{ inputs.target_image_tag }}: ${{ inputs.reason }}"
+          echo "File a post-incident review per docs/13_Security_Design.md#incident-response if this was user-impacting."

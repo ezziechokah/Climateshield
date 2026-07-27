@@ -1,0 +1,26 @@
+# Non-secret configuration shared by every service in csn-services.
+# Mirrors config/default.json — env-var names match docs/31_Environment_Variables.md
+# exactly so a developer can cross-reference the two without translation.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: services-common-config
+  namespace: csn-services
+data:
+  NODE_ENV: "production"
+  APP_ENV: "production"
+  LOG_LEVEL: "warn"
+  TZ: "Africa/Nairobi"
+  DEFAULT_LOCALE: "en-KE"
+  DB_HOST: "postgres.csn-data.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "climateshield_nexus"
+  DB_SSL: "true"
+  TSDB_HOST: "timescaledb.csn-data.svc.cluster.local"
+  TSDB_PORT: "5432"
+  REDIS_HOST: "redis.csn-data.svc.cluster.local"
+  REDIS_PORT: "6379"
+  KAFKA_BROKERS: "kafka-0.csn-data.svc.cluster.local:9092,kafka-1.csn-data.svc.cluster.local:9092,kafka-2.csn-data.svc.cluster.local:9092"
+  OBJECT_STORAGE_ENDPOINT: "https://objects.climateshield-nexus.internal"
+  GEOSERVER_URL: "http://gis-services.csn-services.svc.cluster.local/geoserver"
+  OPENTELEMETRY_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.csn-observability.svc.cluster.local:4317"

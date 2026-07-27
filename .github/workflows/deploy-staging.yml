@@ -1,0 +1,24 @@
+name: Deploy to Staging
+
+# Auto-deploys develop branch to Staging per docs/15_Deployment_Guide.md#environments.
+# NOTE: Foundation-phase skeleton.
+
+on:
+  push:
+    branches: [develop]
+  workflow_run:
+    workflows: ["Build Containers"]
+    types: [completed]
+    branches: [develop]
+
+jobs:
+  deploy-staging:
+    name: Deploy Staging (Kustomize overlay)
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder — apply kubernetes/overlays/staging
+        run: echo "kubectl apply -k kubernetes/overlays/staging per docs/15_Deployment_Guide.md"
+      - name: Placeholder — run E2E tests against staging
+        run: echo "Runs Playwright E2E suite per docs/14_Testing_Strategy.md"

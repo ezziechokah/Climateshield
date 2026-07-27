@@ -1,0 +1,25 @@
+name: Build Containers
+
+# Builds and pushes service container images per docs/15_Deployment_Guide.md#cicd-pipeline.
+# NOTE: Foundation-phase skeleton — populated with real service matrix once
+# backend/, ai-engine/, climate-processing/, gis-services/, frontend/ contain code.
+
+on:
+  push:
+    branches: [develop, main]
+
+jobs:
+  build:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: []  # e.g. [auth-service, gateway, climate-data-service, risk-assessment-service, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder — build ${{ matrix.service }}
+        run: echo "Multi-stage Docker build per docs/15_Deployment_Guide.md#container-strategy"
+      - name: Placeholder — vulnerability scan
+        run: echo "Scans image via Trivy/Grype before push"
+      - name: Placeholder — push to registry
+        run: echo "Pushes pinned-digest image to container registry"

@@ -1,0 +1,18 @@
+{
+  "//": "Production environment overrides. Deep-merged on top of default.json. Values here match the targets documented in docs/05_Non_Functional_Requirements.md.",
+  "gateway": {
+    "rateLimitPerMinute": {
+      "authenticatedUser": 120,
+      "apiKeyPublicTier": 60,
+      "apiKeyPartnerTier": 600,
+      "unauthenticatedPerIp": 30
+    }
+  },
+  "logging": {
+    "level": "warn",
+    "prettyPrint": false
+  },
+  "auth": {
+    "accessTokenTtlSeconds": 900
+  }
+}

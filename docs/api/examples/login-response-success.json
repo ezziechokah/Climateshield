@@ -1,0 +1,5 @@
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.example.signature",
+  "refresh_token": "rt_9c1f2e7a-8b3d-4e5f-a1c2-b3d4e5f6a7b8",
+  "expires_in": 900
+}

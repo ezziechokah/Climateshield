@@ -1,0 +1,17 @@
+{
+  "gis_layers": [
+    { "id": "a0000000-0000-4000-8000-000000000001", "name": "County Boundaries", "layer_type": "vector", "category": "boundary", "is_public": true },
+    { "id": "a0000000-0000-4000-8000-000000000002", "name": "Sub-County Boundaries", "layer_type": "vector", "category": "boundary", "is_public": true },
+    { "id": "a0000000-0000-4000-8000-000000000003", "name": "Flood Hazard Layer", "layer_type": "vector", "category": "hazard", "is_public": true },
+    { "id": "a0000000-0000-4000-8000-000000000004", "name": "Drought Hazard Layer", "layer_type": "vector", "category": "hazard", "is_public": true },
+    { "id": "a0000000-0000-4000-8000-000000000005", "name": "Heatwave Hazard Layer", "layer_type": "vector", "category": "hazard", "is_public": true },
+    { "id": "a0000000-0000-4000-8000-000000000006", "name": "NDVI (Vegetation Index)", "layer_type": "raster", "category": "satellite", "is_public": false },
+    { "id": "a0000000-0000-4000-8000-000000000007", "name": "Land Surface Temperature", "layer_type": "raster", "category": "satellite", "is_public": false },
+    { "id": "a0000000-0000-4000-8000-000000000008", "name": "Road Network (Infrastructure)", "layer_type": "vector", "category": "infrastructure", "is_public": false }
+  ],
+  "gis_layer_versions": [
+    { "id": "a1000000-0000-4000-8000-000000000001", "layer_id": "a0000000-0000-4000-8000-000000000001", "version": "2026.1", "storage_uri": "s3://gis-layers/county-boundaries/2026.1.geojson", "published_at": "2026-01-05T00:00:00Z" },
+    { "id": "a1000000-0000-4000-8000-000000000002", "layer_id": "a0000000-0000-4000-8000-000000000003", "version": "2026-07-27T06:00Z", "storage_uri": "s3://gis-layers/flood-hazard/2026-07-27T0600Z.geojson", "published_at": "2026-07-27T06:02:00Z" },
+    { "id": "a1000000-0000-4000-8000-000000000003", "layer_id": "a0000000-0000-4000-8000-000000000006", "version": "2026-07-26", "storage_uri": "s3://gis-layers/ndvi/2026-07-26.tif", "published_at": "2026-07-26T10:00:00Z" }
+  ]
+}

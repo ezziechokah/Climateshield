@@ -1,0 +1,14 @@
+{
+  "report_templates": [
+    { "id": "93000000-0000-4000-8000-000000000001", "name": "Daily Climate Bulletin", "format": "pdf" },
+    { "id": "93000000-0000-4000-8000-000000000002", "name": "Weekly Risk Summary", "format": "xlsx" },
+    { "id": "93000000-0000-4000-8000-000000000003", "name": "County Planning Report", "format": "pdf" }
+  ],
+  "report_instances": [
+    { "id": "93000000-0000-4000-8000-000000000004", "template_id": "93000000-0000-4000-8000-000000000001", "requested_by": null, "status": "delivered", "storage_uri": "s3://climate-reports/daily-bulletin-2026-07-27.pdf", "generated_at": "2026-07-27T06:00:08Z" },
+    { "id": "93000000-0000-4000-8000-000000000005", "template_id": "93000000-0000-4000-8000-000000000001", "requested_by": null, "status": "delivered", "storage_uri": "s3://climate-reports/daily-bulletin-2026-07-26.pdf", "generated_at": "2026-07-26T06:00:06Z" },
+    { "id": "93000000-0000-4000-8000-000000000006", "template_id": "93000000-0000-4000-8000-000000000002", "requested_by": "10000000-0000-4000-8000-000000000004", "status": "ready", "storage_uri": "s3://climate-reports/weekly-risk-summary-2026-w30.xlsx", "generated_at": "2026-07-27T05:45:00Z" },
+    { "id": "93000000-0000-4000-8000-000000000007", "template_id": "93000000-0000-4000-8000-000000000003", "requested_by": "10000000-0000-4000-8000-000000000007", "status": "generating", "storage_uri": null, "generated_at": null },
+    { "id": "93000000-0000-4000-8000-000000000008", "template_id": "93000000-0000-4000-8000-000000000003", "requested_by": "10000000-0000-4000-8000-000000000007", "status": "failed", "storage_uri": null, "generated_at": null }
+  ]
+}

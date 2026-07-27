@@ -1,0 +1,88 @@
+{
+  "// purpose": "Shared workspace settings so every developer's editor behaves identically (format-on-save, linters wired to the same configs as CI). Personal preferences (theme, keybindings) belong in each developer's User settings, not here.",
+
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.rulers": [100],
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.venv": true,
+    "**/__pycache__": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.terraform": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.venv": true,
+    "sdk/**": true,
+    "mock-data/**": true,
+    "**/coverage": true
+  },
+
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": false
+  },
+
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["tests"],
+  "python.analysis.typeCheckingMode": "strict",
+
+  "eslint.workingDirectories": [
+    { "pattern": "frontend" },
+    { "pattern": "backend/*" },
+    { "pattern": "mobile" },
+    { "pattern": "packages/*" }
+  ],
+
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml",
+    "kubernetes": ["kubernetes/**/*.yaml"]
+  },
+
+  "sqltools.connections": [
+    {
+      "name": "ClimateShield Local (PostgreSQL/PostGIS)",
+      "driver": "PostgreSQL",
+      "server": "localhost",
+      "port": 5432,
+      "database": "climateshield_nexus",
+      "username": "climateshield_app"
+    }
+  ],
+
+  "cSpell.words": [
+    "climateshield",
+    "geoserver",
+    "postgis",
+    "timescaledb",
+    "kmd",
+    "nairobi",
+    "kilifi",
+    "turkana",
+    "geojson",
+    "geotiff"
+  ]
+}

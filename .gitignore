@@ -1,0 +1,103 @@
+# ==================================================================
+# ClimateShield Nexus — .gitignore
+# ==================================================================
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!docker/**/*.example.key
+secrets/
+
+# --- Node / JS / TS ---
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.eslintcache
+.turbo/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# --- ML artifacts ---
+*.ckpt
+*.pt
+*.h5
+*.onnx
+mlruns/
+mlflow-artifacts/
+
+# --- Data (do not commit raw/processed climate data) ---
+climate-processing/data/raw/
+climate-processing/data/processed/
+*.grib
+*.grib2
+*.nc
+*.tif
+*.tiff
+!docs/assets/**/*.tif
+
+# --- Database ---
+*.sqlite3
+*.db
+database/dumps/
+
+# --- Docker / K8s ---
+docker/**/.env
+kubernetes/**/*.local.yaml
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.idea/
+# .vscode/ shared team config (settings.json, launch.json, tasks.json,
+# extensions.json) IS committed per docs/34_Developer_Guide.md — only
+# personal-machine overrides are ignored.
+.vscode/*.local.json
+*.swp
+
+# --- Terraform ---
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# --- Test / coverage ---
+coverage/
+.nyc_output/
+junit.xml
+tests/fixtures/synthetic-data/generated/
+playwright-report/
+test-results/
+
+# --- Generated docs/SDK output (regenerate via scripts/generate-*.sh, never hand-edit) ---
+docs/api/generated/
+docs/assets/generated/
+sdk/typescript/
+sdk/python/
+
+# --- Mobile ---
+mobile/**/ios/Pods/
+mobile/**/android/.gradle/
+mobile/**/*.apk
+mobile/**/*.ipa

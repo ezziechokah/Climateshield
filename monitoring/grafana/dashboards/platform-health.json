@@ -1,0 +1,68 @@
+{
+  "//": "Auto-provisioned via monitoring/grafana/provisioning/dashboards/dashboards.yml. Implements the 'Platform Health' dashboard defined in docs/29_Logging_and_Monitoring.md#dashboards.",
+  "title": "ClimateShield Nexus — Platform Health",
+  "uid": "csn-platform-health",
+  "schemaVersion": 39,
+  "timezone": "Africa/Nairobi",
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "tags": ["climateshield-nexus", "platform"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "API Availability (5xx rate)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service)",
+          "legendFormat": "{{service}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Gateway p95 Latency (target < 300ms, NFR-PERF-001)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=\"gateway\"}[5m])) by (le))"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Alert Dispatch Latency (target < 5min, NFR-PERF-005)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(alert_dispatch_duration_seconds_bucket[15m])) by (le))"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Data Source Freshness",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "(time() - data_source_last_success_timestamp_seconds) / data_source_sla_seconds"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Active Pods per Service",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(kube_pod_status_ready{condition=\"true\"}) by (service)"
+        }
+      ]
+    }
+  ]
+}

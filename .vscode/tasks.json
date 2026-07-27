@@ -1,0 +1,75 @@
+{
+  "// purpose": "Editor-integrated shortcuts for the same commands defined in Makefile — run via Ctrl+Shift+P > Tasks: Run Task, so developers don't need to remember shell commands.",
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup: Bootstrap Repository",
+      "type": "shell",
+      "command": "make setup",
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Start Full Stack",
+      "type": "shell",
+      "command": "make dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Stop Stack",
+      "type": "shell",
+      "command": "make down",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Run All",
+      "type": "shell",
+      "command": "make test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": ["$tsc", "$eslint-stylish"]
+    },
+    {
+      "label": "Lint: Fix All",
+      "type": "shell",
+      "command": "make lint",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Format: All Files",
+      "type": "shell",
+      "command": "make format",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: All Workspaces",
+      "type": "shell",
+      "command": "npm run build",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "DB: Seed Mock Data",
+      "type": "shell",
+      "command": "make seed",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Reset",
+      "type": "shell",
+      "command": "make reset-db",
+      "problemMatcher": []
+    },
+    {
+      "label": "Docs: Generate API Docs + SDKs",
+      "type": "shell",
+      "command": "make docs-api",
+      "problemMatcher": []
+    },
+    {
+      "label": "Health: Validate Environment",
+      "type": "shell",
+      "command": "make validate-env",
+      "problemMatcher": []
+    }
+  ]
+}

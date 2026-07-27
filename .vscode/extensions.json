@@ -1,0 +1,25 @@
+{
+  "// purpose": "Recommended extensions — VS Code prompts every developer to install these on first open, keeping tooling identical across the team.",
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "ms-azuretools.vscode-docker",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "hashicorp.terraform",
+    "redhat.vscode-yaml",
+    "bierner.markdown-mermaid",
+    "davidanson.vscode-markdownlint",
+    "streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens",
+    "42crunch.vscode-openapi",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+    "orta.vscode-jest",
+    "ms-vscode.makefile-tools",
+    "editorconfig.editorconfig"
+  ],
+  "unwantedRecommendations": ["ms-vscode.vscode-typescript-tslint-plugin"]
+}

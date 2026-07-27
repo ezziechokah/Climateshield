@@ -1,0 +1,78 @@
+{
+  "// purpose": "Debug configurations for the services developers will spend the most time in. Add a new entry here in the same PR that adds a new service (docs/40_Developer_Assignment.md).",
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug: API Gateway (Node)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--workspace=backend/gateway"],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug: Frontend (Vite)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/frontend/src"
+    },
+    {
+      "name": "Debug: Risk Assessment Service (Python)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"],
+      "cwd": "${workspaceFolder}/backend/risk-assessment-service",
+      "envFile": "${workspaceFolder}/.env",
+      "justMyCode": true
+    },
+    {
+      "name": "Debug: AI Engine (Python)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"],
+      "cwd": "${workspaceFolder}/ai-engine",
+      "envFile": "${workspaceFolder}/.env",
+      "justMyCode": true
+    },
+    {
+      "name": "Debug: GIS Services (Python)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--host", "0.0.0.0", "--port", "8003", "--reload"],
+      "cwd": "${workspaceFolder}/gis-services",
+      "envFile": "${workspaceFolder}/.env",
+      "justMyCode": true
+    },
+    {
+      "name": "Debug: Current Jest Test File",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["jest", "--runInBand", "${relativeFile}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug: Current Pytest File",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-v"],
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug: Gateway + Frontend",
+      "configurations": ["Debug: API Gateway (Node)", "Debug: Frontend (Vite)"]
+    }
+  ]
+}

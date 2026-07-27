@@ -1,0 +1,92 @@
+version: "3.9"
+
+# Local development infrastructure stack for ClimateShield Nexus.
+# Application services are NOT included here yet (pre-code foundation) —
+# see docs/34_Developer_Guide.md for how services will connect once implemented.
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.4
+    container_name: csn-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-climateshield_nexus}
+      POSTGRES_USER: ${DB_USER:-climateshield_app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me}
+    ports:
+      - "5432:5432"
+    volumes:
+      - csn_postgres_data:/var/lib/postgresql/data
+
+  timescaledb:
+    image: timescale/timescaledb:2.14.2-pg15
+    container_name: csn-timescaledb
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${TSDB_NAME:-climateshield_timeseries}
+      POSTGRES_USER: ${TSDB_USER:-climateshield_ts}
+      POSTGRES_PASSWORD: ${TSDB_PASSWORD:-change-me}
+    ports:
+      - "5433:5432"
+    volumes:
+      - csn_timescale_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: csn-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: csn-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: csn-kafka
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+  minio:
+    image: minio/minio:latest
+    container_name: csn-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${OBJECT_STORAGE_ACCESS_KEY:-climateshield}
+      MINIO_ROOT_PASSWORD: ${OBJECT_STORAGE_SECRET_KEY:-change-me-please}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - csn_minio_data:/data
+
+  geoserver:
+    image: kartoza/geoserver:2.24.2
+    container_name: csn-geoserver
+    restart: unless-stopped
+    environment:
+      GEOSERVER_ADMIN_USER: admin
+      GEOSERVER_ADMIN_PASSWORD: change-me
+    ports:
+      - "8080:8080"
+    volumes:
+      - csn_geoserver_data:/opt/geoserver/data_dir
+
+volumes:
+  csn_postgres_data:
+  csn_timescale_data:
+  csn_minio_data:
+  csn_geoserver_data:

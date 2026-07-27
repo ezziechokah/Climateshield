@@ -1,0 +1,19 @@
+{
+  "//": "One fictional user per persona, @example email domains only. Passwords are never seeded — local dev accounts get a password via scripts/seed-database.sh's dev-only reset flow, never committed here.",
+  "users": [
+    { "id": "10000000-0000-4000-8000-000000000001", "email": "super.admin@climateshield.example", "full_name": "Amina Otieno", "role_id": "00000000-0000-4000-8000-000000000001", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000002", "email": "kmd.admin@kmd.example", "full_name": "Brian Kiptoo", "role_id": "00000000-0000-4000-8000-000000000002", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000003", "email": "meteorologist.demo@kmd.example", "full_name": "Grace Wanjiru", "role_id": "00000000-0000-4000-8000-000000000003", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000004", "email": "climate.scientist@kmd.example", "full_name": "David Mwangi", "role_id": "00000000-0000-4000-8000-000000000004", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000005", "email": "gis.analyst@kmd.example", "full_name": "Fatuma Hassan", "role_id": "00000000-0000-4000-8000-000000000005", "status": "active", "preferred_language": "sw" },
+    { "id": "10000000-0000-4000-8000-000000000006", "email": "disaster.officer@ndma.example", "full_name": "Peter Kamau", "role_id": "00000000-0000-4000-8000-000000000006", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000007", "email": "gov.planner@treasury.example", "full_name": "Lucy Achieng", "role_id": "00000000-0000-4000-8000-000000000007", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000008", "email": "agriculture.officer@kilimo.example", "full_name": "Samuel Njoroge", "role_id": "00000000-0000-4000-8000-000000000008", "status": "active", "preferred_language": "sw" },
+    { "id": "10000000-0000-4000-8000-000000000009", "email": "aviation.officer@kcaa.example", "full_name": "Mercy Chebet", "role_id": "00000000-0000-4000-8000-000000000009", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000010", "email": "water.officer@wra.example", "full_name": "James Odhiambo", "role_id": "00000000-0000-4000-8000-000000000010", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000011", "email": "health.officer@moh.example", "full_name": "Esther Nyambura", "role_id": "00000000-0000-4000-8000-000000000011", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000012", "email": "ngo.contact@redcross.example", "full_name": "Daniel Kiprop", "role_id": "00000000-0000-4000-8000-000000000012", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000013", "email": "researcher@university.example", "full_name": "Dr. Wanjiku Maina", "role_id": "00000000-0000-4000-8000-000000000013", "status": "active", "preferred_language": "en" },
+    { "id": "10000000-0000-4000-8000-000000000014", "email": "public.user@gmail.example", "full_name": "John Mutua", "role_id": "00000000-0000-4000-8000-000000000014", "status": "active", "preferred_language": "sw" }
+  ]
+}

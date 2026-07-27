@@ -1,0 +1,48 @@
+# OpenTelemetry Collector pipeline — receives traces (and optionally
+# metrics/logs) from every service via OTLP and fans them out to Tempo
+# (traces) and Prometheus remote-write (metrics), implementing
+# tracing-strategy.md#collector-pipeline.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+  # Tail-based sampling: keep 100% of error traces, 10% of everything else
+  # in production (see tracing-strategy.md#sampling).
+  tail_sampling:
+    decision_wait: 10s
+    policies:
+      - name: errors-always-sampled
+        type: status_code
+        status_code: { status_codes: [ERROR] }
+      - name: baseline-probabilistic
+        type: probabilistic
+        probabilistic: { sampling_percentage: 10 }
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 512
+
+exporters:
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls: { insecure: true } # internal cluster traffic only; mTLS handled at the mesh layer, not here
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, tail_sampling, batch]
+      exporters: [otlp/tempo]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [prometheusremotewrite]

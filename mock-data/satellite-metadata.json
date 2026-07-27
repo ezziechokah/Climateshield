@@ -1,0 +1,10 @@
+{
+  "satellite_products": [
+    { "id": "a2000000-0000-4000-8000-000000000001", "provider": "MODIS (NASA)", "product_type": "NDVI", "captured_at": "2026-07-26T10:15:00Z", "storage_uri": "s3://satellite-raw/modis/ndvi/2026-07-26T1015Z.tif" },
+    { "id": "a2000000-0000-4000-8000-000000000002", "provider": "MODIS (NASA)", "product_type": "land_surface_temperature", "captured_at": "2026-07-26T10:15:00Z", "storage_uri": "s3://satellite-raw/modis/lst/2026-07-26T1015Z.tif" },
+    { "id": "a2000000-0000-4000-8000-000000000003", "provider": "Sentinel-2 (ESA)", "product_type": "true_color", "captured_at": "2026-07-25T08:40:00Z", "storage_uri": "s3://satellite-raw/sentinel2/true-color/2026-07-25T0840Z.tif" },
+    { "id": "a2000000-0000-4000-8000-000000000004", "provider": "VIIRS (NOAA)", "product_type": "precipitation_estimate", "captured_at": "2026-07-27T00:00:00Z", "storage_uri": "s3://satellite-raw/viirs/precip/2026-07-27T0000Z.tif" },
+    { "id": "a2000000-0000-4000-8000-000000000005", "provider": "MODIS (NASA)", "product_type": "NDVI", "captured_at": "2026-07-19T10:15:00Z", "storage_uri": "s3://satellite-raw/modis/ndvi/2026-07-19T1015Z.tif" },
+    { "id": "a2000000-0000-4000-8000-000000000006", "provider": "Sentinel-2 (ESA)", "product_type": "true_color", "captured_at": "2026-07-18T08:40:00Z", "storage_uri": "s3://satellite-raw/sentinel2/true-color/2026-07-18T0840Z.tif" }
+  ]
+}

@@ -1,0 +1,40 @@
+# Base Kustomization — the environment-agnostic manifest set patched by
+# kubernetes/overlays/{dev,staging,production}/. Never apply this directly
+# against a real cluster; always go through an overlay
+# (`kubectl apply -k kubernetes/overlays/<env>`), per
+# docs/15_Deployment_Guide.md#kubernetes-layout.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 00-namespaces.yaml
+  - 01-storage-classes.yaml
+  - gateway/deployment.yaml
+  - gateway/service.yaml
+  - gateway/configmap.yaml
+  - gateway/hpa.yaml
+  - services/climate-data-service.yaml
+  - services/risk-assessment-service.yaml
+  - services/alerting-service.yaml
+  - services/configmap.yaml
+  - data/postgres.yaml
+  - data/redis.yaml
+  - secrets/external-secrets.yaml
+  - network-policies.yaml
+  - ingress.yaml
+  - pipelines/cronjob-daily-bulletin.yaml
+  - pipelines/job-db-migrate.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: climateshield-nexus
+  app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ghcr.io/climateshield-nexus/gateway
+    newTag: latest
+  - name: ghcr.io/climateshield-nexus/climate-data-service
+    newTag: latest
+  - name: ghcr.io/climateshield-nexus/risk-assessment-service
+    newTag: latest
+  - name: ghcr.io/climateshield-nexus/alerting-service
+    newTag: latest

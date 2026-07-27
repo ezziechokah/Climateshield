@@ -1,0 +1,71 @@
+name: Documentation Validation
+
+# Validates that documentation stays trustworthy: Mermaid diagrams render,
+# internal Markdown links resolve, the OpenAPI spec is valid, and mock data
+# conforms to shared/schemas/. Implements docs/14_Testing_Strategy.md#ci-quality-gates
+# item 5-6 and docs/diagrams/README.md#local-render-validation.
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "mock-data/**"
+      - "shared/schemas/**"
+  push:
+    branches: [develop, main]
+    paths:
+      - "docs/**"
+      - "mock-data/**"
+      - "shared/schemas/**"
+
+jobs:
+  mermaid-render-check:
+    name: Render every Mermaid diagram
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and render Mermaid blocks
+        run: |
+          npm install -g @mermaid-js/mermaid-cli
+          fail=0
+          for f in $(grep -rl '```mermaid' docs/); do
+            echo "Checking $f"
+            node scripts/lib/extract-and-render-mermaid.js "$f" || fail=1
+          done
+          exit $fail
+
+  markdown-link-check:
+    name: Check internal Markdown links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: "yes"
+          config-file: ".github/markdown-link-check-config.json"
+
+  openapi-validate:
+    name: Validate OpenAPI spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Redocly lint
+        run: npx @redocly/cli lint docs/api/openapi.yaml
+
+  mock-data-schema-check:
+    name: Validate mock-data against shared/schemas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: node scripts/lib/validate-mock-data.js
+
+  sdk-freshness-check:
+    name: Verify generated SDK matches openapi.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./sdk/generate.sh
+      - name: Fail if generation produced a diff (SDK was stale)
+        run: git diff --exit-code sdk/

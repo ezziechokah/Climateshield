@@ -1,0 +1,50 @@
+{
+  "//": "Baseline configuration shared by every environment. Deep-merged with the environment-specific file, then overridden by real env vars at runtime. No secrets here — see docs/13_Security_Design.md#secrets-management.",
+  "app": {
+    "name": "climateshield-nexus",
+    "defaultLocale": "en-KE",
+    "supportedLocales": ["en-KE", "sw-KE"],
+    "timezone": "Africa/Nairobi"
+  },
+  "gateway": {
+    "rateLimitPerMinute": {
+      "authenticatedUser": 120,
+      "apiKeyPublicTier": 60,
+      "apiKeyPartnerTier": 600,
+      "unauthenticatedPerIp": 30
+    },
+    "requestTimeoutMs": 10000
+  },
+  "auth": {
+    "accessTokenTtlSeconds": 900,
+    "refreshTokenTtlSeconds": 2592000,
+    "mfaRequiredRoles": ["super_admin", "kmd_admin", "meteorologist", "disaster_mgmt_officer"],
+    "passwordPolicy": {
+      "minLength": 12,
+      "requireUppercase": true,
+      "requireLowercase": true,
+      "requireDigit": true,
+      "requireSymbol": true
+    },
+    "lockout": {
+      "maxFailedAttempts": 5,
+      "lockoutWindowMinutes": 15
+    }
+  },
+  "alerts": {
+    "approvalSlaMinutes": 15,
+    "dispatchChannels": ["sms", "email", "push", "webhook"],
+    "dispatchLatencyTargetSeconds": 300
+  },
+  "dataFreshnessSlaMinutes": {
+    "station": 30,
+    "nwp": 360,
+    "satellite": 720
+  },
+  "pagination": {
+    "defaultLimit": 50,
+    "maxLimit": 200
+  },
+  "featureFlagsFile": "./feature-flags.json",
+  "riskThresholdsFile": "./risk-thresholds.json"
+}

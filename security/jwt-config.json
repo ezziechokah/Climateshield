@@ -1,0 +1,20 @@
+{
+  "//": "JWT configuration template implementing docs/13_Security_Design.md#authentication-architecture and SRS-AUTH-004 (docs/04_Functional_Requirements.md#authentication). Signing keys themselves live in Vault (security/vault-integration-plan.md), never here — this file is the algorithm/TTL/claims CONTRACT every service's JWT verification middleware must implement identically.",
+  "algorithm": "RS256",
+  "issuer": "https://auth.climateshield-nexus.example",
+  "audience": "climateshield-nexus-api",
+  "access_token_ttl_seconds": 900,
+  "refresh_token_ttl_seconds": 2592000,
+  "key_rotation_days": 180,
+  "clock_skew_tolerance_seconds": 30,
+  "required_claims": ["sub", "iss", "aud", "exp", "iat", "role", "agency_id"],
+  "optional_claims": ["admin_boundary_scope", "mfa_verified"],
+  "revocation": {
+    "strategy": "session_lookup",
+    "description": "Every access token's `sub`+`iat` is checked against the user_session table on each request (docs/09_Database_Dictionary.md#user_session) — a revoked session's tokens are rejected even before natural expiry, closing the gap a pure-JWT-stateless approach would leave for 'log out all devices' (SRS-AUTH-008)."
+  },
+  "storage": {
+    "web": "httpOnly, Secure, SameSite=Strict cookie",
+    "mobile": "OS secure keychain/keystore, never AsyncStorage/plain preferences"
+  }
+}
