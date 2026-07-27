@@ -5,5 +5,5 @@
 # xarray, GDAL, PyTorch, etc. per docs/06_System_Architecture.md#technology-stack) —
 # this file intentionally stays minimal.
 
-jsonschema==4.23.0
+jsonschema==4.26.0
 pyyaml==6.0.2
