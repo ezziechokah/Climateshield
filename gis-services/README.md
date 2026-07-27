@@ -20,10 +20,11 @@ Python, FastAPI, PostGIS, GeoServer, GDAL — see [`docs/06_System_Architecture.
 
 ## Before You Start
 
-Read, in order: [`docs/07_ERD.md`](../docs/07_ERD.md#gis--spatial-erd), [`docs/04_Functional_Requirements.md`](../docs/04_Functional_Requirements.md#gis--remote-sensing), [`docs/22_Sequence_Diagrams.md`](../docs/22_Sequence_Diagrams.md#sequence-6-gis-spatial-query).
+Read, in order: [`docs/backend/05_GIS_Engine_Service_Architecture.md`](../docs/backend/05_GIS_Engine_Service_Architecture.md) and [`docs/backend/14_GIS_Architecture.md`](../docs/backend/14_GIS_Architecture.md) (the full module/spatial-processing/tiling/caching architecture for this service), [`docs/07_ERD.md`](../docs/07_ERD.md#gis--spatial-erd), [`docs/04_Functional_Requirements.md`](../docs/04_Functional_Requirements.md#gis--remote-sensing), [`docs/22_Sequence_Diagrams.md`](../docs/22_Sequence_Diagrams.md#sequence-6-gis-spatial-query). Then use the implementation prompt: [`docs/backend/prompts/07_gis_services.md`](../docs/backend/prompts/07_gis_services.md).
 
 ## References
 
+- [`docs/backend/05_GIS_Engine_Service_Architecture.md`](../docs/backend/05_GIS_Engine_Service_Architecture.md), [`docs/backend/14_GIS_Architecture.md`](../docs/backend/14_GIS_Architecture.md)
 - [`docs/07_ERD.md`](../docs/07_ERD.md#gis--spatial-erd)
 - [`docs/09_Database_Dictionary.md`](../docs/09_Database_Dictionary.md#gis--spatial-tables)
 - [`docs/04_Functional_Requirements.md`](../docs/04_Functional_Requirements.md#gis--remote-sensing)

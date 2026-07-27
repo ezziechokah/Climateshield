@@ -26,10 +26,11 @@ Every response **must** include source citations and a confidence score, and hig
 
 ## Before You Start
 
-Read, in order: [`docs/13_Security_Design.md`](../docs/13_Security_Design.md#ai-governance--safety), [`docs/04_Functional_Requirements.md`](../docs/04_Functional_Requirements.md#ai-climate-assistant), [`docs/22_Sequence_Diagrams.md`](../docs/22_Sequence_Diagrams.md#sequence-4-ai-assistant-query-with-rag).
+Read, in order: [`docs/backend/06_AI_Assistant_and_Knowledge_Base_Service_Architecture.md`](../docs/backend/06_AI_Assistant_and_Knowledge_Base_Service_Architecture.md) and [`docs/backend/13_AI_Architecture.md`](../docs/backend/13_AI_Architecture.md) (the full module/prompt-orchestration/retrieval/training architecture for this service), [`docs/13_Security_Design.md`](../docs/13_Security_Design.md#ai-governance--safety), [`docs/04_Functional_Requirements.md`](../docs/04_Functional_Requirements.md#ai-climate-assistant), [`docs/22_Sequence_Diagrams.md`](../docs/22_Sequence_Diagrams.md#sequence-4-ai-assistant-query-with-rag). Then use the module-specific implementation prompts: [`docs/backend/prompts/08_ai_engine_assistant.md`](../docs/backend/prompts/08_ai_engine_assistant.md), [`09_ai_engine_knowledge_base.md`](../docs/backend/prompts/09_ai_engine_knowledge_base.md), [`10_ai_engine_recommendation.md`](../docs/backend/prompts/10_ai_engine_recommendation.md), [`11_ai_engine_ml.md`](../docs/backend/prompts/11_ai_engine_ml.md).
 
 ## References
 
+- [`docs/backend/06_AI_Assistant_and_Knowledge_Base_Service_Architecture.md`](../docs/backend/06_AI_Assistant_and_Knowledge_Base_Service_Architecture.md), [`docs/backend/13_AI_Architecture.md`](../docs/backend/13_AI_Architecture.md)
 - [`docs/13_Security_Design.md`](../docs/13_Security_Design.md#ai-governance--safety)
 - [`docs/04_Functional_Requirements.md`](../docs/04_Functional_Requirements.md#ai-climate-assistant)
 - [`docs/14_Testing_Strategy.md`](../docs/14_Testing_Strategy.md#module-specific-testing-considerations)
