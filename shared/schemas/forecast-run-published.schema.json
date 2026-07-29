@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/forecast-run-published.schema.json",
+  "title": "ForecastRunPublished",
+  "description": "Payload for the `forecast_run.published` event (docs/backend/01_Microservice_Architecture_and_Module_Boundaries.md#event-catalog). Producer: Climate Data Service's Forecast Model module. Validation contract only.",
+  "type": "object",
+  "required": ["id", "forecast_model_id", "valid_from", "valid_to"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "forecast_model_id": { "type": "string", "format": "uuid" },
+    "valid_from": { "type": "string", "format": "date-time" },
+    "valid_to": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

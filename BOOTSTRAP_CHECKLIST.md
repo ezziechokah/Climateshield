@@ -130,7 +130,8 @@ These are deliberately NOT resolved by this bootstrap phase — they require dec
 | TimescaleDB hosting decision (RDS doesn't support the extension) | [`terraform/MODULES.md#known-limitations`](terraform/MODULES.md#known-limitations) |
 | Compute↔IAM Terraform two-pass apply requirement | [`terraform/MODULES.md#known-limitations`](terraform/MODULES.md#known-limitations) |
 | Performance/load testing not yet wired into per-PR CI (manual pre-release gate only) | [`QUALITY_GATES.md#performance-thresholds`](QUALITY_GATES.md#performance-thresholds) |
-| No application source code exists yet — every Dockerfile/K8s manifest/CI job targets code that doesn't exist until developers implement it | By design — see [`docs/40_Developer_Assignment.md`](docs/40_Developer_Assignment.md) |
+| ~~No application source code exists yet~~ — **partially resolved.** Stage 0–2 of the backend build order are implemented: `backend/shared/node/` (5 packages), `backend/auth-service/`, `backend/gateway/`. Services 3–9 (Climate Data, GIS, Risk, Alerting, Reporting, AI, Admin/Audit) and all of `frontend/`, `mobile/`, `ai-engine/`, `climate-processing/`, `gis-services/` remain scaffolds | [`docs/backend/12_API_Implementation_Roadmap.md#implementation-roadmap`](docs/backend/12_API_Implementation_Roadmap.md#implementation-roadmap), [`docs/40_Developer_Assignment.md`](docs/40_Developer_Assignment.md) |
+| `backend/shared/python/csn_shared/` not implemented — the Python half of the shared libraries, needed only once the FastAPI services land in Phase 2 | [`backend/shared/node/README.md`](backend/shared/node/README.md#not-yet-implemented) |
 
 None of these block a developer from starting Sprint 1 work on their assigned module — they are infrastructure/process decisions that land during Phase 1 discovery in parallel with early implementation.
 

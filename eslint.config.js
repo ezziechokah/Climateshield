@@ -52,6 +52,48 @@ export const baseConfig = [
     },
   },
   {
+    // NestJS files that carry decorators. With `emitDecoratorMetadata` (enabled in
+    // tsconfig.base.json), TypeScript emits `design:paramtypes` referencing the
+    // *runtime value* of each constructor parameter's type — which is how Nest's DI
+    // container resolves dependencies. `consistent-type-imports` sees such an import
+    // as type-only and rewrites it to `import type`, erasing the emit and breaking
+    // injection at runtime. The build and unit tests still pass (they construct
+    // providers by hand), so the failure only surfaces when the app actually boots.
+    // Not worth that trap for an import-style preference.
+    files: [
+      '**/*.controller.ts',
+      '**/*.service.ts',
+      '**/*.module.ts',
+      '**/*.guard.ts',
+      '**/*.gateway.ts',
+      '**/*.filter.ts',
+      '**/*.interceptor.ts',
+      '**/entities/*.ts',
+      '**/dto/*.ts',
+    ],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
+    },
+  },
+  {
+    // CommonJS tooling config (jest.config.js, etc.). `no-undef` is already off for
+    // TS via typescript-eslint, but plain .js files still need the CJS/Node globals
+    // declared or every `module.exports` reads as an undefined identifier.
+    files: ['**/*.cjs', '**/jest.config.js', '**/*.config.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        module: 'writable',
+        require: 'readonly',
+        exports: 'writable',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        console: 'readonly',
+      },
+    },
+  },
+  {
     ignores: [
       '**/node_modules/**',
       '**/dist/**',

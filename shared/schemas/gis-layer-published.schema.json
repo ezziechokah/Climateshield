@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/gis-layer-published.schema.json",
+  "title": "GisLayerPublished",
+  "description": "Payload for the `gis_layer.published` event (docs/backend/01_Microservice_Architecture_and_Module_Boundaries.md#event-catalog). Producer: GIS Service. Validation contract only.",
+  "type": "object",
+  "required": ["layer_version_id", "layer_id"],
+  "properties": {
+    "layer_version_id": { "type": "string", "format": "uuid" },
+    "layer_id": { "type": "string", "format": "uuid" },
+    "admin_boundary_id": { "type": ["string", "null"], "format": "uuid" },
+    "extent": {
+      "type": "array",
+      "description": "Bounding box [minX, minY, maxX, maxY] in SRID 4326.",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 4
+    }
+  },
+  "additionalProperties": false
+}

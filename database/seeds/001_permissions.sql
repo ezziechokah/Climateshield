@@ -55,6 +55,13 @@ INSERT INTO identity.permission (module, action, description) VALUES
   ('user_management', 'create', 'Invite/create a user'),
   ('user_management', 'edit',   'Edit a user (role, status, profile)'),
   ('user_management', 'delete', 'Deactivate a user'),
+  -- Resolves docs/backend/prompts/03_user_role_module.md's requirement that
+  -- admin_boundary_scope assignment require a permission distinct from (and
+  -- higher than) basic user edit. `manage`/`manage_scope` are not legal
+  -- `action` values (see permission_action_allowed CHECK below), so this
+  -- reuses the schema-legal `approve` action on the `user_management`
+  -- module instead of inventing a new action.
+  ('user_management', 'approve', 'Assign a user''s admin_boundary_scope'),
 
   -- role_management
   ('role_management', 'view',   'View roles and the permission catalog'),

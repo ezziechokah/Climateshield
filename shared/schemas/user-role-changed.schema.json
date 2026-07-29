@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/user-role-changed.schema.json",
+  "title": "UserRoleChanged",
+  "description": "Payload for the `user.role_changed` event (docs/backend/01_Microservice_Architecture_and_Module_Boundaries.md#event-catalog). Producer: Auth Service's User/Role module. Consumers: Gateway (permission-cache invalidation), Admin/Audit. Validation contract only.",
+  "type": "object",
+  "required": ["user_id", "previous_roles", "new_roles", "changed_by"],
+  "properties": {
+    "user_id": { "type": "string", "format": "uuid" },
+    "previous_roles": { "type": "array", "items": { "type": "string" } },
+    "new_roles": { "type": "array", "items": { "type": "string" } },
+    "changed_by": { "type": "string", "format": "uuid" }
+  },
+  "additionalProperties": false
+}

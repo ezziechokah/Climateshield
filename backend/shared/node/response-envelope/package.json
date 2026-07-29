@@ -1,0 +1,27 @@
+{
+  "name": "@climateshield/response-envelope",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pagination/filtering/sorting query-parsing helpers and the list-response envelope, implementing docs/12_API_Specification.md#pagination-filtering-sorting and docs/backend/12_API_Implementation_Roadmap.md#pagination through #sorting.",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings=0"
+  },
+  "dependencies": {
+    "@climateshield/http-errors": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "typescript": "^5.5.4"
+  }
+}
