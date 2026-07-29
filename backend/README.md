@@ -2,20 +2,38 @@
 
 ## Purpose
 
-Scaffold directory for ClimateShield Nexus's core NestJS (Node.js/TypeScript) backend services. **No application code exists yet** — this is pre-coding foundation only. The complete backend engineering blueprint (module boundaries, per-service architecture, API roadmap, and one implementation-ready prompt per module) is fully designed in [`docs/backend/`](../docs/backend/) — read that package, and the specific prompt in [`docs/backend/prompts/`](../docs/backend/prompts/) for the service you're building, before writing any code here.
+ClimateShield Nexus's core NestJS (Node.js/TypeScript) backend services. The complete backend engineering blueprint (module boundaries, per-service architecture, API roadmap, and one implementation-ready prompt per module) is designed in [`docs/backend/`](../docs/backend/) — read that package, and the specific prompt in [`docs/backend/prompts/`](../docs/backend/prompts/) for the service you're building, before writing code here.
 
-## Planned Services (per `docs/06_System_Architecture.md` and `docs/backend/00_Backend_Architecture_Overview.md`)
+**Implementation status**: the first three stages of the build order in [`docs/backend/12_API_Implementation_Roadmap.md#implementation-roadmap`](../docs/backend/12_API_Implementation_Roadmap.md#implementation-roadmap) are done — shared libraries, Auth Service (+ co-located User/Role), and the Gateway. The remaining services are still scaffolds. See the Status column below.
 
-| Service | Directory (planned) | Owner | Co-located Module |
-|---|---|---|---|
-| Auth Service | `auth-service/` | Dev 1 ([`docs/40_Developer_Assignment.md`](../docs/40_Developer_Assignment.md)) | `src/modules/user-role/` — Users, Roles, Permissions, Organizations (per [`docs/backend/00_Backend_Architecture_Overview.md#co-located-services-resolving-a-phase-3-gap`](../docs/backend/00_Backend_Architecture_Overview.md#co-located-services-resolving-a-phase-3-gap)) |
-| Climate Data Service | `climate-data-service/` | Dev 2 | `src/modules/forecast-model/` — Forecast Engine, same co-location rationale |
-| Risk Assessment Service | `risk-assessment-service/` | Dev 3 | — |
-| Alerting Service | `alerting-service/` | Dev 1 | — |
-| Reporting Service | `reporting-service/` | Dev 5 | — |
-| Admin/Audit Service | `admin-audit-service/` | Dev 1 | — |
-| API Gateway (BFF) | `gateway/` | Dev 1 | — |
-| Shared libraries | `shared/node/`, `shared/python/` | — | Implement first — every service depends on them ([`docs/backend/prompts/16_shared_libraries.md`](../docs/backend/prompts/16_shared_libraries.md)) |
+## Services (per `docs/06_System_Architecture.md` and `docs/backend/00_Backend_Architecture_Overview.md`)
+
+Build order is column 1 — a dependent service's API is only meaningful once its dependency exists.
+
+| Order | Service | Directory | Status | Owner | Co-located Module |
+|---|---|---|---|---|---|
+| 0 | Shared libraries | `shared/node/` | ✅ Implemented | — | Every service depends on them ([`shared/node/README.md`](shared/node/README.md)) |
+| 0 | Shared libraries (Python) | `shared/python/` | ⬜ Deferred to Phase 2 | — | Needed only once the FastAPI services land |
+| 1 | Auth Service | `auth-service/` | ✅ Implemented | Dev 1 ([`docs/40_Developer_Assignment.md`](../docs/40_Developer_Assignment.md)) | `src/modules/user-role/` — Users, Roles, Permissions, Organizations (per [`docs/backend/00_Backend_Architecture_Overview.md#co-located-services-resolving-a-phase-3-gap`](../docs/backend/00_Backend_Architecture_Overview.md#co-located-services-resolving-a-phase-3-gap)) |
+| 2 | API Gateway (BFF) | `gateway/` | ✅ Implemented | Dev 1 | — |
+| 3 | Climate Data Service | `climate-data-service/` | ⬜ Scaffold | Dev 2 | `src/modules/forecast-model/` — Forecast Engine, same co-location rationale |
+| 4 | GIS Service | `../gis-services/` | ⬜ Scaffold | Dev 4 | — |
+| 5 | Risk Assessment Service | `risk-assessment-service/` | ⬜ Scaffold | Dev 3 | — |
+| 6 | Alerting Service | `alerting-service/` | ⬜ Scaffold | Dev 1 | — |
+| 7 | Reporting Service | `reporting-service/` | ⬜ Scaffold | Dev 5 | — |
+| 8 | AI Assistant | `../ai-engine/` | ⬜ Scaffold | Dev 5 | — |
+| 9 | Admin/Audit Service | `admin-audit-service/` | ⬜ Scaffold | Dev 1 | — |
+
+### Build & test
+
+```bash
+npm install              # from repo root
+npm run build            # build:shared first (npm does not topo-sort workspaces), then all packages
+npm test --workspaces --if-present
+npx eslint backend --max-warnings=0
+```
+
+The default test suite runs without Docker. Tests that need real Postgres/Redis/Kafka are gated behind `TESTCONTAINERS=1`.
 
 `user-role-service/` and `forecast-model-service/` are **not** separate directories — they are co-located modules within `auth-service/` and `climate-data-service/` respectively, per [ADR-001](../docs/architecture/ADR-001-modular-monolith-to-microservices.md)'s explicit allowance for co-locating low-traffic services during MVP.
 

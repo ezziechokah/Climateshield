@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/audit-entry.schema.json",
+  "title": "AuditEntry",
+  "description": "Payload for the internal-only `audit.entry` event (docs/backend/01_Microservice_Architecture_and_Module_Boundaries.md#event-catalog). Producer: every service, on any audit-worthy action. Sole consumer: Admin/Audit Service, the only writer of ops.audit_log. Validation contract only.",
+  "type": "object",
+  "required": ["actor_id", "action", "entity_type", "entity_id"],
+  "properties": {
+    "actor_id": { "type": ["string", "null"], "format": "uuid" },
+    "action": { "type": "string" },
+    "entity_type": { "type": "string" },
+    "entity_id": { "type": "string" },
+    "before": { "type": ["object", "null"] },
+    "after": { "type": ["object", "null"] }
+  },
+  "additionalProperties": false
+}

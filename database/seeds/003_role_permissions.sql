@@ -25,7 +25,12 @@ WITH grants(role_code, module, action) AS (
     ('super_admin','ai_assistant','view'), ('super_admin','ai_assistant','export'),
     ('super_admin','alerts','view'), ('super_admin','alerts','create'), ('super_admin','alerts','approve'), ('super_admin','alerts','export'),
     ('super_admin','reports','view'), ('super_admin','reports','create'), ('super_admin','reports','edit'), ('super_admin','reports','delete'), ('super_admin','reports','export'),
-    ('super_admin','user_management','view'), ('super_admin','user_management','create'), ('super_admin','user_management','edit'), ('super_admin','user_management','delete'),
+    -- 'approve' here backs admin_boundary_scope assignment (docs/backend/prompts/03_user_role_module.md's
+    -- "user.manage_scope" requirement, resolved onto the schema-legal (module, action) pair
+    -- user_management:approve — see 001_permissions.sql). Deliberately super_admin-only: the
+    -- narrowest grant is the safe default for a security-sensitive, Full-audit-tier action;
+    -- widening to kmd_admin or others is a deliberate future decision, not a default.
+    ('super_admin','user_management','view'), ('super_admin','user_management','create'), ('super_admin','user_management','edit'), ('super_admin','user_management','delete'), ('super_admin','user_management','approve'),
     ('super_admin','role_management','view'), ('super_admin','role_management','create'), ('super_admin','role_management','edit'), ('super_admin','role_management','delete'),
     ('super_admin','audit_log','view'), ('super_admin','audit_log','export'),
     ('super_admin','system_config','view'), ('super_admin','system_config','edit'),

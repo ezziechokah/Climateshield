@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ApiExceptionFilter serializes an ApiError to exactly the shape in docs/12_API_Specification.md#error-format (snapshot) 1`] = `
+{
+  "error": {
+    "code": "RISK_ASSESSMENT_NOT_FOUND",
+    "details": {
+      "admin_boundary_id": "b3f1...",
+      "hazard_type": "flood",
+    },
+    "message": "No risk assessment found for the given boundary and hazard type.",
+    "request_id": "req_9f8a2c",
+  },
+}
+`;

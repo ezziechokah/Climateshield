@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/background-job-event.schema.json",
+  "title": "BackgroundJobEvent",
+  "description": "Shared payload for the `background_job.enqueued`/`.started`/`.completed`/`.failed` events (docs/backend/01_Microservice_Architecture_and_Module_Boundaries.md#event-catalog). Sole consumer: Admin/Audit Service (ops.task_queue/background_job ledger). Validation contract only.",
+  "type": "object",
+  "required": ["job_id", "job_type", "queue_name", "status"],
+  "properties": {
+    "job_id": { "type": "string", "format": "uuid" },
+    "job_type": { "type": "string" },
+    "queue_name": { "type": "string" },
+    "status": { "type": "string", "enum": ["enqueued", "started", "completed", "failed"] },
+    "error": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

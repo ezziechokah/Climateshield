@@ -8,12 +8,12 @@
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
+  "//workspaces": "Glob patterns only, so a directory that is still a docs-only scaffold (no package.json yet) is skipped rather than breaking `npm install` for everyone. Add a concrete path here only once that package actually exists.",
   "workspaces": [
-    "frontend",
-    "backend/*",
-    "mobile",
-    "packages/*",
-    "sdk/typescript"
+    "backend/shared/node/*",
+    "backend/*-service",
+    "backend/gateway",
+    "packages/*"
   ],
   "scripts": {
     "//lint": "Lint every workspace package. Wired into .github/workflows/lint.yml",
@@ -24,7 +24,9 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:coverage": "npm run test:coverage --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
+    "//build": "npm does not topologically sort workspaces, so http-errors (which every other shared package imports) must be built explicitly first. Once it has emitted its .d.ts, the rest are independent of each other and the alphabetical --workspaces pass is safe.",
+    "build:shared": "npm run build -w @climateshield/http-errors && npm run build -w @climateshield/response-envelope -w @climateshield/rbac-guard -w @climateshield/event-bus -w @climateshield/storage-client",
+    "build": "npm run build:shared && npm run build --workspaces --if-present",
     "dev": "bash scripts/run-dev.sh",
     "clean": "bash scripts/clean.sh",
     "prepare": "husky"

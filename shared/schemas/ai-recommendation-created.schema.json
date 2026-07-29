@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/ai-recommendation-created.schema.json",
+  "title": "AiRecommendationCreated",
+  "description": "Payload for the `ai_recommendation.created` event (docs/backend/01_Microservice_Architecture_and_Module_Boundaries.md#event-catalog). Producer: AI Assistant Service. Validation contract only.",
+  "type": "object",
+  "required": ["id", "ai_message_id", "hazard_type", "confidence_score", "requires_review"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "ai_message_id": { "type": "string", "format": "uuid" },
+    "hazard_type": {
+      "type": "string",
+      "enum": ["flood", "drought", "heatwave", "agriculture", "infrastructure", "population_exposure"]
+    },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "requires_review": { "type": "boolean" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://climateshield-nexus.example/schemas/system-config-updated.schema.json",
+  "title": "SystemConfigUpdated",
+  "description": "Payload for the `system_config.updated` event (docs/backend/01_Microservice_Architecture_and_Module_Boundaries.md#event-catalog). Producer: Admin/Audit Service. Consumed by every service for config-cache invalidation, per docs/backend/00_Backend_Architecture_Overview.md#configuration-management. Validation contract only.",
+  "type": "object",
+  "required": ["key", "new_value", "scope"],
+  "properties": {
+    "key": { "type": "string" },
+    "new_value": {},
+    "scope": { "type": "string", "enum": ["global", "agency"] },
+    "agency_id": { "type": ["string", "null"], "format": "uuid" }
+  },
+  "additionalProperties": false
+}
